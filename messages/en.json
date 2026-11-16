@@ -318,6 +318,7 @@
     "sortPriceAsc": "Sort by price: low to high",
     "sortPriceDesc": "Sort by price: high to low",
     "sortLatest": "Sort by latest",
+    "sortBestSellers": "Sort by best sellers",
     "pagination": "Pagination",
     "previous": "Previous",
     "next": "Next"

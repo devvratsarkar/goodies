@@ -16,6 +16,7 @@ export default function BestSellerSection({ bestSellers }: { bestSellers: HomePr
       previousLabel={t("previous")}
       nextLabel={t("next")}
       products={bestSellers}
+      sortBy="best_seller"
     />
   );
 }

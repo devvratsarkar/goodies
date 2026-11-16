@@ -75,6 +75,7 @@ export default async function ShopCatalog({
         sortOptions={[
           { value: "", label: t("sortDefault") },
           { value: "newest", label: t("sortLatest") },
+          { value: "best_seller", label: t("sortBestSellers") },
           { value: "low_to_high", label: t("sortPriceAsc") },
           { value: "high_to_low", label: t("sortPriceDesc") },
         ]}

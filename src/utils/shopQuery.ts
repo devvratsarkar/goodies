@@ -1,4 +1,4 @@
-const sorts = ["newest", "low_to_high", "high_to_low"] as const;
+const sorts = ["newest", "best_seller", "low_to_high", "high_to_low"] as const;
 
 export type ShopSort = (typeof sorts)[number];
 
