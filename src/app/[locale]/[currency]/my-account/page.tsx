@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { AccountDefaultAddress, AccountGreeting, AccountProfileSummary } from "@/components/account/AccountProfileSummary";
+import { PushNotificationCard } from "@/components/account/PushNotificationCard";
 import { AccountAddressCount } from "@/components/account/AccountAddresses";
 import { AccountCouponsCount } from "@/components/account/AccountCoupons";
 import { AccountOrdersCount, AccountOrderList } from "@/components/account/AccountOrderList";
@@ -83,6 +84,7 @@ export default async function MyAccountPage() {
 
         <div className="grid gap-4">
           <AccountProfileSummary />
+          <PushNotificationCard />
           <AccountDefaultAddress />
         </div>
       </div>

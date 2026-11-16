@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Noto_Sans_Arabic } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
-import { notFound } from "next/navigation";
+import { PushPermissionPrompt } from "@/components/account/PushPermissionPrompt";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ModalProvider } from "@/components/layout/common/ModalProvider";
 import MobileViewportFix from "@/components/layout/MobileViewportFix";
@@ -126,6 +126,7 @@ export default async function LocaleLayout({
         <NextIntlClientProvider>
           <StoreProvider>
             <AuthProvider>
+              <PushPermissionPrompt />
               <ModalProvider>{children}</ModalProvider>
             </AuthProvider>
           </StoreProvider>

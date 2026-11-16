@@ -43,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     Cookies.set(cookieName, nextToken, cookieOptions);
     setToken(nextToken);
     refreshAccount();
+    window.dispatchEvent(new Event("goodies-push-ask"));
   }
 
   async function login(email: string, password: string) {
@@ -66,9 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   function logout() {
+    const currentToken = Cookies.get(cookieName) ?? null;
     Cookies.remove(cookieName, { path: "/" });
     setToken(null);
     refreshAccount();
+    if (currentToken) {
+      void import("@/utils/webPush").then((push) => push.forgetPushSubscription(currentToken));
+    }
   }
 
   return <AuthContext.Provider value={{ token, ready, login, startSession, logout }}>{children}</AuthContext.Provider>;
