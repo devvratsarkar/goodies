@@ -1,0 +1,206 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { LuGift, LuMinus, LuPlus, LuShoppingBag, LuSparkles, LuTrash2, LuTruck } from "react-icons/lu";
+import CartSummary from "@/components/cart/CartSummary";
+import RemoveCartItemConfirm from "@/components/cart/RemoveCartItemConfirm";
+import { type PaymentMethod } from "@/components/checkout/PaymentMethods";
+import CartItemsSkeleton from "@/components/skeletons/CartItemsSkeleton";
+import ImageComponent from "@/components/layout/common/ImageComponent";
+import { useModal } from "@/components/layout/common/ModalProvider";
+import { Link } from "@/i18n/navigation";
+import { getProductRoutePath, getShopRoutePath } from "@/utils/routes";
+import { useGetCartQuery, useUpdateCartItemQuantityMutation } from "@/store/endpoints/cartApi";
+import { formatAmount } from "@/utils/price";
+
+const minQuantity = 1;
+const maxQuantity = 99;
+
+const emptyNotes = [
+  { icon: LuTruck, title: "deliveryTitle", description: "deliveryDescription" },
+  { icon: LuSparkles, title: "qualityTitle", description: "qualityDescription" },
+  { icon: LuGift, title: "giftingTitle", description: "giftingDescription" },
+] as const;
+
+function EmptyCart() {
+  const t = useTranslations("CartPage");
+  const notes = useTranslations("WhyChooseSection");
+
+  return (
+    <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-background">
+      <div className="px-6 py-14 text-center sm:px-10 sm:py-16">
+        <span className="mx-auto inline-flex size-16 items-center justify-center rounded-full bg-primary-soft text-primary">
+          <LuShoppingBag aria-hidden className="size-7" />
+        </span>
+        <h2 className="mt-5 text-2xl font-bold tracking-tight text-heading">{t("empty")}</h2>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted sm:text-base">{t("emptyNote")}</p>
+        <Link
+          href={getShopRoutePath()}
+          className="mt-7 inline-flex h-12 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          {t("shop")}
+        </Link>
+      </div>
+      <ul className="grid border-t border-border sm:grid-cols-3">
+        {emptyNotes.map(({ icon: Icon, title, description }) => (
+          <li key={title} className="flex items-start gap-3 border-t border-border px-5 py-4 text-start first:border-t-0 sm:border-t-0 sm:border-s sm:first:border-s-0">
+            <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
+              <Icon aria-hidden className="size-4" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-heading">{notes(title)}</span>
+              <span className="mt-0.5 block text-xs leading-5 text-muted">{notes(description)}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+type CartDetailsProps = {
+  checkoutHref?: string;
+  /** page = cart layout; sheet = order-summary bottom sheet (CSS-only differences) */
+  variant?: "page" | "sheet";
+  paymentMethod?: PaymentMethod;
+};
+
+export default function CartDetails({ checkoutHref, variant = "page", paymentMethod }: CartDetailsProps) {
+  const t = useTranslations("CartPage");
+  const { data: cart, isLoading: isLoadingCart } = useGetCartQuery(paymentMethod);
+  const [updateQuantity, { isLoading: isUpdatingQuantity }] = useUpdateCartItemQuantityMutation();
+  const cartItems = cart?.items ?? [];
+  const cartSummary = cart?.summary ?? null;
+  const isSheet = variant === "sheet";
+
+  const { openModal } = useModal();
+
+  const removeCartItem = (itemId: string, name: string) => {
+    openModal({
+      title: t("removeTitle"),
+      size: "sm",
+      content: <RemoveCartItemConfirm itemId={itemId} name={name} />,
+    });
+  };
+
+  const updateCartItemQuantity = async (itemId: string, quantity: number) => {
+    try {
+      await updateQuantity({ itemId, quantity }).unwrap();
+    } catch (error) {
+      console.error("Error updating quantity", error);
+    }
+  };
+
+  const currencySymbol = cartSummary?.currency_symbol ?? "";
+
+  if (!isLoadingCart && cartItems.length === 0) {
+    return isSheet ? null : <EmptyCart />;
+  }
+
+  return (
+    <div
+      data-variant={variant}
+      className={isSheet ? "cart-details grid gap-5" : "cart-details mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10"}
+    >
+      {isLoadingCart ? (
+        <CartItemsSkeleton label={t("loading")} />
+      ) : (
+        <ul className="cart-items divide-y divide-border overflow-hidden rounded-2xl border border-border bg-background">
+          {cartItems?.map((item, index) => {
+            const quantity = item?.quantity;
+            const isBundle = item?.product_type === "bundle";
+            const bundleSelections = isBundle ? (item?.bundle_selections ?? []) : [];
+            const stock = isBundle ? item?.product_id?.stock : item?.selected_variant?.stock;
+            const itemMaxQuantity = Math.min(maxQuantity, stock ?? maxQuantity);
+
+            return (
+              <li key={item?._id ?? index} className="cart-item flex gap-4 p-4 sm:gap-5 sm:p-5">
+                <Link
+                  href={getProductRoutePath(item?.product_id?.slug)}
+                  aria-label={item?.product_id?.title}
+                  className="cart-item-thumb relative size-20 shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-border/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:size-24"
+                >
+                  <ImageComponent src={item?.product_id?.thumbnail} alt="" width={192} height={192} sizes="96px" objectFit="cover" />
+                </Link>
+                <div className="cart-item-body flex min-w-0 flex-1 flex-col">
+                  <div className="cart-item-top flex items-start justify-between gap-3">
+                    <div className="cart-item-info min-w-0">
+                      <Link
+                        href={getProductRoutePath(item?.product_id?.slug)}
+                        className="cart-item-title font-semibold text-heading hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      >
+                        {item?.product_id?.title}
+                      </Link>
+                      <p className="cart-item-price mt-1 text-sm text-muted">
+                        {formatAmount(item?.selected_variant?.price, item?.product_id?.pricing_context?.currency_symbol ?? "")}
+                      </p>
+                      {bundleSelections.length > 0 ? (
+                        <div className="cart-item-bundle mt-2">
+                          <p className="text-xs font-semibold text-heading">{t("bundleContains")}</p>
+                          <ul className="mt-1 space-y-0.5 text-xs text-muted">
+                            {bundleSelections.map((selection, selectionIndex) => (
+                              <li key={selection?._id ?? selectionIndex}>
+                                <span className="font-semibold text-heading">{selection?.quantity} ×</span>{" "}
+                                <Link
+                                  href={getProductRoutePath(selection?.product_id?.slug ?? "")}
+                                  className="underline-offset-2 hover:text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                                >
+                                  {selection?.product_id?.title}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={t("remove", { name: item?.product_id?.title })}
+                      onClick={() => removeCartItem(item?._id, item?.product_id?.title)}
+                      className="cart-item-remove -me-1 -mt-1 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-primary-soft hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                      <LuTrash2 aria-hidden className="size-4" />
+                    </button>
+                  </div>
+                  <div className="cart-item-actions mt-3 flex items-center justify-between gap-3">
+                    <div className="cart-item-qty inline-flex h-9 items-center rounded-full border border-border bg-background">
+                      <button
+                        type="button"
+                        aria-label={t("decrease", { name: item?.product_id?.title })}
+                        disabled={isUpdatingQuantity || quantity <= minQuantity}
+                        onClick={() => updateCartItemQuantity(item?._id, quantity - 1)}
+                        className="inline-flex size-9 items-center justify-center rounded-full text-heading transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:text-border"
+                      >
+                        <LuMinus aria-hidden className="size-3.5" />
+                      </button>
+                      <span className="w-8 text-center text-sm font-semibold tabular-nums text-heading" aria-hidden>
+                        {quantity}
+                      </span>
+                      <span className="sr-only">
+                        {t("quantity")} {quantity}
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={t("increase", { name: item?.product_id?.title })}
+                        disabled={isUpdatingQuantity || quantity >= itemMaxQuantity}
+                        onClick={() => updateCartItemQuantity(item?._id, quantity + 1)}
+                        className="inline-flex size-9 items-center justify-center rounded-full text-heading transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:text-border"
+                      >
+                        <LuPlus aria-hidden className="size-3.5" />
+                      </button>
+                    </div>
+                    <p className="cart-item-line-total shrink-0 text-sm font-semibold text-price sm:text-base">
+                      {formatAmount(item?.selected_variant?.price * quantity, currencySymbol)}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <CartSummary checkoutHref={isSheet ? undefined : checkoutHref} variant={variant} paymentMethod={paymentMethod} />
+    </div>
+  );
+}

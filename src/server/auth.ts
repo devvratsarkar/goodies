@@ -1,0 +1,71 @@
+"use server";
+
+import { ApiError, api } from "@/server/api";
+import { getRequestCurrency } from "@/server/currency";
+
+export type VerifyType = "account" | "login" | "forgot";
+
+type AuthSuccess<T> = { ok: true; data: T; message?: string };
+type AuthFailure = { ok: false; message: string };
+
+async function post<T>(path: string, body: unknown, deviceId?: string | null, headers?: Record<string, string>): Promise<AuthSuccess<T> | AuthFailure> {
+  try {
+    const country = await getRequestCurrency();
+    const { data } = await api.post(path, body, {
+      headers: { country, ...(deviceId ? { "device-id": deviceId } : {}), ...headers },
+    });
+    return { ok: true, data: data?.data as T, message: data?.message };
+  } catch (error) {
+    if (error instanceof ApiError) return { ok: false, message: error.message };
+    throw error;
+  }
+}
+
+export async function registerAccount(input: {
+  name: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  phoneCountryCode: string;
+  password: string;
+  country: string;
+  countryCode: string;
+  state: string;
+  stateCode: string;
+  origin: string;
+}, deviceId?: string | null) {
+  const form = new FormData();
+  form.append("name", input.name);
+  form.append("last_name", input.lastName);
+  form.append("email", input.email);
+  form.append("phone", input.phone);
+  form.append("phone_country_code", input.phoneCountryCode);
+  form.append("password", input.password);
+  form.append("country", input.country);
+  form.append("country_code", input.countryCode);
+  form.append("state", input.state);
+  form.append("state_code", input.stateCode);
+  form.append("origin", input.origin);
+
+  return post("/user/register", form, deviceId);
+}
+
+export async function verifyCode(email: string, code: string, type: VerifyType, deviceId?: string | null) {
+  return post<{ token?: string; user?: { _id?: string; id?: string | number; name?: string; email?: string; phone_number?: string; phone?: string; profile_pic?: string | null } }>("/user/verify", { email, code, type }, deviceId);
+}
+
+export async function resendCode(email: string, deviceId?: string | null) {
+  return post("/user/resend-code", { email }, deviceId);
+}
+
+export async function sendEmailOtp(email: string, deviceId?: string | null) {
+  return post("/user/email-otp", { email }, deviceId);
+}
+
+export async function forgotPassword(email: string, deviceId?: string | null) {
+  return post("/user/forgot-password", { user_id: email }, deviceId);
+}
+
+export async function setNewPassword(token: string, password: string, confirmPassword: string, deviceId?: string | null) {
+  return post("/user/new-password", { password, confirm_password: confirmPassword }, deviceId, { Authorization: `Bearer ${token}` });
+}

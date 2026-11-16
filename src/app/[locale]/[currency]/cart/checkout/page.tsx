@@ -1,0 +1,111 @@
+import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
+import { LuInfo } from "react-icons/lu";
+import CheckoutView from "@/components/checkout/CheckoutView";
+import PaymentReturn from "@/components/checkout/PaymentReturn";
+import Breadcrumbs from "@/components/layout/common/Breadcrumbs";
+import { getGlobalSettings, getPageNoticeSettings } from "@/server";
+import { toCurrency } from "@/utils/currency";
+import { getCartRoutePath, getCheckoutClassicRoutePath, getHomeRoutePath, getShopRoutePath } from "@/utils/routes";
+import { pageAlternates } from "@/utils/seo";
+
+type CheckoutSearchParams = {
+  ziina?: string;
+  tabby?: string;
+  tamara?: string;
+  cod?: string;
+  order_id?: string;
+  order_number?: string;
+  message?: string;
+};
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<CheckoutSearchParams>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations("CheckoutClassicPage");
+  const query = await searchParams;
+  const alternates = pageAlternates(locale, getCheckoutClassicRoutePath());
+  const paymentStatus = query.tabby || query.ziina || query.tamara || query.cod;
+  if (paymentStatus) {
+    const resultTitle = query.tabby
+      ? t("tabbyResultTitle")
+      : query.tamara
+        ? t("tamaraResultTitle")
+        : query.cod
+          ? t("received")
+          : t("ziinaResultTitle");
+    return {
+      title: paymentStatus === "success" ? t("received") : resultTitle,
+      robots: { index: false, follow: false },
+      alternates,
+    };
+  }
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates,
+  };
+}
+
+export default async function CheckoutClassicPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ currency: string }>;
+  searchParams: Promise<CheckoutSearchParams>;
+}) {
+  const { currency } = await params;
+  const t = await getTranslations("CheckoutClassicPage");
+  const nav = await getTranslations("Nav");
+  const cart = await getTranslations("CartPage");
+  const query = await searchParams;
+  const paymentStatus = query.tabby || query.ziina || query.tamara || query.cod;
+  const country = toCurrency(currency);
+  const [notices, settings] = await Promise.all([getPageNoticeSettings(country), getGlobalSettings(country)]);
+  const checkoutNotice = notices?.checkout_notice_enabled ? notices.checkout_notice?.trim() : "";
+  const defaultPaymentMethod = settings?.default_payment_method?.trim().toLowerCase() || "ziina";
+  const enabled = {
+    tabby: settings?.tabby_enable === true,
+    tamara: settings?.tamara_enable === true,
+    ziina: settings?.ziina_enable === true,
+  };
+
+  return (
+    <div className="container section_y_space">
+      <Breadcrumbs
+        className="mb-4"
+        items={[
+          { label: nav("home"), href: getHomeRoutePath() },
+          { label: cart("title"), href: getCartRoutePath() },
+          { label: paymentStatus === "success" ? t("received") : t("title") },
+        ]}
+      />
+      {checkoutNotice ? (
+        <p className="mb-4 flex items-center gap-2.5 rounded-lg bg-primary-soft px-4 py-3 text-sm leading-5 text-heading" role="note">
+          <LuInfo className="size-5 shrink-0 text-primary" aria-hidden="true" />
+          <span>{checkoutNotice}</span>
+        </p>
+      ) : null}
+      {paymentStatus ? (
+        <div className="mx-auto mt-6 max-w-3xl">
+          <PaymentReturn
+            status={paymentStatus}
+            method={query.tabby ? "tabby" : query.tamara ? "tamara" : "ziina"}
+            orderId={query.order_id ?? ""}
+            orderNumber={query.order_number ?? ""}
+            message={query.message ?? ""}
+            shopHref={getShopRoutePath()}
+            checkoutHref={getCheckoutClassicRoutePath()}
+          />
+        </div>
+      ) : (
+        <CheckoutView shopHref={getShopRoutePath()} defaultPaymentMethod={defaultPaymentMethod} enabled={enabled} />
+      )}
+    </div>
+  );
+}
