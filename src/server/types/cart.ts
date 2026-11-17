@@ -37,6 +37,8 @@ export interface CartItem {
     bogo_active?: boolean | null;
     bogo_label?: string | null;
     bogo_free_quantity?: number | null;
+    out_of_stock?: boolean | null;
+    stock_message?: string | null;
     createdAt: string;
     updatedAt: string;
     id: number;
@@ -185,6 +187,8 @@ export interface ShippingRate {
 export interface Summary {
     cart_id: string;
     item_count: number;
+    out_of_stock_count?: number | null;
+    stock_message?: string | null;
     subtotal: number;
     tax_amount: number;
     shipping_charge: number;

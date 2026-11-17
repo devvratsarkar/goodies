@@ -400,6 +400,7 @@
     "bundleContains": "محتويات الصندوق:",
     "yourOrder": "طلبك",
     "itemQty": "الكمية {count}",
+    "overStock": "الكمية لديك {quantity}، والمتوفر {stock} فقط.",
     "shipping": "الشحن",
     "shippingNote": "سعر ثابت",
     "shippingTitle": "الاسم",

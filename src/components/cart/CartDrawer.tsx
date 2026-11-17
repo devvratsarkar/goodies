@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { LuMinus, LuPlus, LuShoppingBag, LuTrash2, LuX } from "react-icons/lu";
+import { LuMinus, LuPlus, LuShoppingBag, LuTrash2, LuTriangleAlert, LuX } from "react-icons/lu";
 import CheckoutAuth from "@/components/auth/CheckoutAuth";
 import { useCartDrawer } from "@/components/cart/CartDrawerProvider";
 import RemoveCartItemConfirm from "@/components/cart/RemoveCartItemConfirm";
@@ -12,6 +12,7 @@ import { useModal } from "@/components/layout/common/ModalProvider";
 import { Link } from "@/i18n/navigation";
 import type { CartItem } from "@/server/types/cart";
 import { useGetCartQuery, useUpdateCartItemQuantityMutation } from "@/store/endpoints/cartApi";
+import { cartStockIssue } from "@/utils/cartStock";
 import { formatAmount } from "@/utils/price";
 import { getProductRoutePath, getShopRoutePath } from "@/utils/routes";
 
@@ -39,6 +40,8 @@ export default function CartDrawer() {
   const items = cart?.items ?? [];
   const symbol = cart?.summary?.currency_symbol ?? "";
   const estimatedTotal = cart?.summary?.subtotal ?? 0;
+  const stock = cartStockIssue(cart?.summary);
+  const checkoutBlocked = stock.blocked;
 
   useEffect(() => {
     if (!open) return;
@@ -142,6 +145,8 @@ export default function CartDrawer() {
                   const bundleSelections = isBundle ? (item.bundle_selections ?? []) : [];
                   const stockSource = isBundle ? item.product_id : item.selected_variant;
                   const itemMaxQuantity = stockSource?.stock_manage ? Math.min(maxQuantity, stockSource.stock ?? 0) : maxQuantity;
+                  const availableStock = stockSource?.stock_manage ? Math.max(0, stockSource.stock ?? 0) : null;
+                  const overStock = availableStock != null ? quantity - availableStock : 0;
                   const unitPrice = item.selected_variant?.price ?? item.single_price;
                   const lineTotal = unitPrice * quantity;
                   const size = itemSize(item);
@@ -178,6 +183,9 @@ export default function CartDrawer() {
                             {color ? <p className="mt-1 text-xs text-muted">{t("color", { value: color })}</p> : null}
                             {size ? <p className={`text-xs text-muted ${color ? "mt-0.5" : "mt-1"}`}>{t("size", { value: size })}</p> : null}
                             {item.bogo_active && item.bogo_label ? <p className="mt-1 text-xs font-semibold text-primary">{item.bogo_label}</p> : null}
+                            {availableStock != null && overStock > 0 ? (
+                              <p className="mt-1 text-xs font-semibold text-primary">{cartText("overStock", { quantity, stock: availableStock })}</p>
+                            ) : null}
                             {bundleSelections.length > 0 ? (
                               <div className="mt-2">
                                 <p className="text-xs font-semibold text-heading">{cartText("bundleContains")}</p>
@@ -248,10 +256,17 @@ export default function CartDrawer() {
                   <span className="text-base font-bold tabular-nums text-heading">{formatAmount(estimatedTotal, symbol)}</span>
                 </p>
                 <p className="mt-1 text-xs leading-5 text-muted">{t("estimatedNote")}</p>
+                {stock.message ? (
+                  <p className="mt-4 flex items-center gap-2 rounded-xl border border-primary/20 bg-primary-soft px-3.5 py-2.5 text-sm font-medium leading-5 text-primary">
+                    <LuTriangleAlert aria-hidden className="size-4 shrink-0" />
+                    <span className="min-w-0 flex-1">{stock.message}</span>
+                  </p>
+                ) : null}
                 <button
                   type="button"
+                  disabled={checkoutBlocked}
                   onClick={openCheckout}
-                  className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {cartText("checkout")}
                 </button>

@@ -400,6 +400,7 @@
     "bundleContains": "In this box:",
     "yourOrder": "Your order",
     "itemQty": "Qty {count}",
+    "overStock": "Your quantity is {quantity}, but only {stock} are in stock.",
     "shipping": "Shipping",
     "shippingNote": "Flat rate",
     "shippingTitle": "Title",

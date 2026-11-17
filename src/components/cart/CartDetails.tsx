@@ -94,8 +94,10 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
 
   const currencySymbol = cartSummary?.currency_symbol ?? "";
 
+  if (isSheet && cartItems.length === 0) return null;
+
   if (!isLoadingCart && cartItems.length === 0) {
-    return isSheet ? null : <EmptyCart />;
+    return <EmptyCart />;
   }
 
   return (
@@ -103,7 +105,7 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
       data-variant={variant}
       className={isSheet ? "cart-details grid gap-5" : "cart-details mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-10"}
     >
-      {isLoadingCart ? (
+      {isLoadingCart && !isSheet ? (
         <CartItemsSkeleton label={t("loading")} />
       ) : (
         <ul className="cart-items divide-y divide-border overflow-hidden rounded-2xl border border-border bg-background">
@@ -118,6 +120,8 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
             const unitPrice = item?.selected_variant?.price ?? 0;
             const lineTotal = unitPrice * (quantity ?? 0);
             const priceSymbol = item?.product_id?.pricing_context?.currency_symbol || currencySymbol;
+            const availableStock = stockSource?.stock_manage ? Math.max(0, stockSource.stock ?? 0) : null;
+            const overStock = availableStock != null ? (quantity ?? 0) - availableStock : 0;
 
             return (
               <li key={item?._id ?? index} className="cart-item flex gap-4 p-4 sm:gap-5 sm:p-5">
@@ -146,6 +150,9 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
                         </span>
                         {isSheet && quantity > 1 ? <span className="cart-item-sheet-total font-bold tabular-nums text-heading">{formatAmount(lineTotal, priceSymbol)}</span> : null}
                       </p>
+                      {availableStock != null && overStock > 0 ? (
+                        <p className="mt-1 text-xs font-semibold text-primary">{t("overStock", { quantity: quantity ?? 0, stock: availableStock })}</p>
+                      ) : null}
                       {bundleSelections.length > 0 ? (
                         <div className="cart-item-bundle mt-2">
                           <p className="text-xs font-semibold text-heading">{t("bundleContains")}</p>
@@ -165,14 +172,16 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
                         </div>
                       ) : null}
                     </div>
-                    <button
-                      type="button"
-                      aria-label={t("remove", { name: item?.product_id?.title })}
-                      onClick={() => removeCartItem(item?._id, item?.product_id?.title)}
-                      className="cart-item-remove -me-1 -mt-1 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-primary-soft hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                    >
-                      <LuTrash2 aria-hidden className="size-4" />
-                    </button>
+                    {isSheet ? null : (
+                      <button
+                        type="button"
+                        aria-label={t("remove", { name: item?.product_id?.title })}
+                        onClick={() => removeCartItem(item?._id, item?.product_id?.title)}
+                        className="cart-item-remove -me-1 -mt-1 inline-flex size-9 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-primary-soft hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                      >
+                        <LuTrash2 aria-hidden className="size-4" />
+                      </button>
+                    )}
                   </div>
                   <div className="cart-item-actions mt-3 flex items-center justify-between gap-3">
                     <div className="cart-item-qty inline-flex h-9 items-center rounded-full border border-border bg-background">
@@ -205,6 +214,16 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
                       {formatAmount(lineTotal, currencySymbol)}
                     </p>
                   </div>
+                  {isSheet ? (
+                    <button
+                      type="button"
+                      aria-label={t("remove", { name: item?.product_id?.title })}
+                      onClick={() => removeCartItem(item?._id, item?.product_id?.title)}
+                      className="cart-item-remove inline-flex size-9 shrink-0 items-center justify-center rounded-full text-heading transition-colors hover:bg-primary-soft hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                      <LuTrash2 aria-hidden className="size-4" />
+                    </button>
+                  ) : null}
                 </div>
               </li>
             );

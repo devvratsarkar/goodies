@@ -3,11 +3,12 @@
 import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { LuChevronRight, LuX } from "react-icons/lu";
+import { LuChevronRight, LuTriangleAlert, LuX } from "react-icons/lu";
 import CartCoupons from "@/components/cart/CartCoupons";
 import CartDetails from "@/components/cart/CartDetails";
 import { type PaymentMethod } from "@/components/checkout/PaymentMethods";
 import { useApplyCouponMutation, useGetCartQuery } from "@/store/endpoints/cartApi";
+import { cartStockIssue } from "@/utils/cartStock";
 import { formatAmount } from "@/utils/price";
 
 export type CouponCelebration = {
@@ -44,6 +45,7 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
   const couponCode = summary?.coupon_code ?? null;
   const totalAmount = summary?.total_amount ?? 0;
   const hasDiscount = Boolean(couponCode) && discountAmount > 0;
+  const stock = cartStockIssue(summary);
 
   async function applyCartCoupon(code: string) {
     try {
@@ -114,6 +116,18 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
             </span>
           ) : null}
         </button>
+
+        {stock.message ? (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="flex w-full items-center gap-2 rounded-xl border border-primary/20 bg-primary-soft px-3.5 py-2.5 text-start text-sm font-medium leading-5 text-primary transition-colors hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <LuTriangleAlert aria-hidden className="size-4 shrink-0" />
+            <span className="min-w-0 flex-1">{stock.message}</span>
+            <LuChevronRight aria-hidden className="size-4 shrink-0 rtl:rotate-180" />
+          </button>
+        ) : null}
 
         {!isLoading && items.length > 0 ? (
           <div className="overflow-hidden bg-white rounded-xl">

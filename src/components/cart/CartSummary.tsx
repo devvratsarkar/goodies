@@ -69,7 +69,7 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
   const totalAmount = cartSummary?.total_amount ?? 0;
   const currencySymbol = cartSummary?.currency_symbol ?? "";
 
-  if (isLoading) {
+  if (isLoading && variant !== "sheet") {
     return <CartSummarySkeleton label={t("loading")} checkoutHref={checkoutHref} showItems={showItems} />;
   }
 
@@ -123,7 +123,7 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
 
       <div className="cart-summary-body p-5">
         <h2 className="cart-summary-title text-lg font-bold tracking-tight">{t("summary")}</h2>
-        {totalsUpdating ? (
+        {totalsUpdating && variant !== "sheet" ? (
           <div role="status" aria-busy="true" aria-label={t("loading")} className="mt-4 space-y-3.5">
             <span className="sr-only">{t("loading")}</span>
             <div className="flex items-center justify-between gap-3">
@@ -178,7 +178,7 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
                 <dt className="flex flex-wrap text-muted">
                   {t("shipping")}
                   ({shippingRateZone ? <span className="cart-summary-shipping-meta mt-0.5 block text-xs text-muted/80">{t("shippingZone")}: {shippingRateZone} &nbsp;</span> : null}
-                  {shippingRateTitle ? <span className="cart-summary-shipping-meta mt-0.5 block text-xs text-muted/80">{t("shippingTitle")}: {shippingRateTitle} &nbsp;</span> : null}
+                  {shippingRateTitle ? <span className="cart-summary-shipping-meta mt-0.5 block text-xs text-muted/80">{t("shippingTitle")}: {shippingRateTitle}</span> : null}
                   {shippingIsFree ? <span className="cart-summary-shipping-meta mt-0.5 block text-xs font-semibold text-price">{t("couponShipping")}</span> : null})
                 </dt>
                 <dd className={`pt-0.5 font-semibold tabular-nums ${shippingIsFree ? "text-price" : "text-heading"}`}>
