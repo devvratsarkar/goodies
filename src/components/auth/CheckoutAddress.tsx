@@ -163,6 +163,7 @@ export default function CheckoutAddress({ onDone, header }: { onDone?: () => voi
   const [continuing, setContinuing] = useState(false);
 
   const selectedId = pickedId ?? addresses.find((address) => address.is_selected)?._id ?? addresses.find((address) => address.is_default)?._id ?? null;
+  const mustBeDefault = addresses.length === 0 || (Boolean(editingAddress) && addresses.length === 1);
   const needsForm = !isLoading && (addresses.length === 0 || showForm);
   const formInitialValues = useMemo(() => valuesFromProfile(profile), [profile]);
 
@@ -176,7 +177,7 @@ export default function CheckoutAddress({ onDone, header }: { onDone?: () => voi
         if (editingAddress) {
           await updateAddress({
             addressId: editingAddress._id,
-            ...toAddressPayload(values, phoneCountryCode, isDefault, postalCode),
+            ...toAddressPayload(values, phoneCountryCode, mustBeDefault || isDefault, postalCode),
           }).unwrap();
           setPickedId(editingAddress._id);
           closeForm();
@@ -224,7 +225,7 @@ export default function CheckoutAddress({ onDone, header }: { onDone?: () => voi
       },
     });
     setPostalCode(address.postal_code ?? "");
-    setIsDefault(address.is_default);
+    setIsDefault(addresses.length === 1 || address.is_default);
     setEditingAddress(address);
     setShowForm(true);
   }
@@ -410,11 +411,11 @@ export default function CheckoutAddress({ onDone, header }: { onDone?: () => voi
         </div>
 
         <div className={footerClassName}>
-          <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-heading">
+          <label className={`flex items-center gap-2.5 text-sm font-semibold text-heading ${mustBeDefault ? "cursor-default" : "cursor-pointer"}`}>
             <input
               type="checkbox"
-              checked={addresses.length === 0 || isDefault}
-              disabled={addresses.length === 0}
+              checked={mustBeDefault || isDefault}
+              disabled={mustBeDefault}
               onChange={(event) => setIsDefault(event.target.checked)}
               className="size-4 accent-primary disabled:cursor-default"
             />

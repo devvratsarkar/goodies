@@ -16,6 +16,13 @@ export type EnabledGateways = {
   ziina: boolean;
 };
 
+export function resolveDefaultPaymentMethod(value: string | null | undefined, enabled: EnabledGateways): PaymentMethod | null {
+  const method = value?.trim().toLowerCase();
+  if (method === "cod") return "cod";
+  if ((method === "tabby" || method === "ziina" || method === "tamara") && enabled[method]) return method;
+  return null;
+}
+
 type PaymentMethodsProps = {
   value: PaymentMethod | null;
   onChange: (method: PaymentMethod) => void;

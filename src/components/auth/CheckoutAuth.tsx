@@ -9,7 +9,7 @@ import CheckoutAddress from "@/components/auth/CheckoutAddress";
 import EmailVerify from "@/components/auth/EmailVerify";
 import CheckoutPayment from "@/components/checkout/CheckoutPayment";
 import OrderSummary, { type CouponCelebration, type CouponCelebrationEvent } from "@/components/checkout/OrderSummary";
-import { type PaymentMethod } from "@/components/checkout/PaymentMethods";
+import { resolveDefaultPaymentMethod, type PaymentMethod } from "@/components/checkout/PaymentMethods";
 import Celebration from "@/components/layout/common/Celebration";
 import ImageComponent from "@/components/layout/common/ImageComponent";
 import { useModal } from "@/components/layout/common/ModalProvider";
@@ -67,6 +67,12 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
       setCouponCelebration(null);
     }
   }, [visible]);
+
+  useEffect(() => {
+    if (step !== "payment" || paymentMethod != null) return;
+    const next = resolveDefaultPaymentMethod(defaultPaymentMethod, enabled);
+    if (next) setPaymentMethod(next);
+  }, [step, paymentMethod, defaultPaymentMethod, enabled]);
 
   useEffect(() => {
     if (!ready) return;

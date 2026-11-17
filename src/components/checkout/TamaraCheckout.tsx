@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import CheckoutAlert from "@/components/checkout/CheckoutAlert";
 import { type PaymentMethod } from "@/components/checkout/PaymentMethods";
 import { useCheckoutTotalsUpdating } from "@/components/checkout/useCheckoutTotalsUpdating";
 import { usePlaceWhenSignedIn } from "@/components/checkout/usePlaceWhenSignedIn";
@@ -55,7 +56,7 @@ export default function TamaraCheckout({ billingAddressId, shippingAddressId, sh
   }
 
   const ready = Boolean(shippingAvailable && billingAddressId && shippingAddressId && !totalsUpdating);
-  const requestPlace = usePlaceWhenSignedIn(payWithTamara, "tamara", ready);
+  const requestPlace = usePlaceWhenSignedIn(payWithTamara, ready);
 
   useEffect(() => {
     if (!autoStart || !ready || startedRef.current) return;
@@ -63,29 +64,9 @@ export default function TamaraCheckout({ billingAddressId, shippingAddressId, sh
     requestPlace();
   }, [autoStart, ready, requestPlace]);
 
-  if (autoStart) {
-    return (
-      <>
-        {error ? (
-          <p role="alert" className="mt-4 text-sm font-medium text-primary">
-            {error}
-          </p>
-        ) : (
-          <p role="status" className="mt-4 text-sm text-muted">
-            {t("tamaraRedirecting")}
-          </p>
-        )}
-      </>
-    );
-  }
-
   return (
     <>
-      {error ? (
-        <p role="alert" className="mt-4 text-sm font-medium text-primary">
-          {error}
-        </p>
-      ) : null}
+      {error ? <CheckoutAlert message={error} className={buttonClassName ? "" : "mt-4"} /> : null}
 
       <button
         type="button"

@@ -48,7 +48,8 @@ export default function CheckoutPayment({
     null;
   const selectedAddress = addresses.find((address) => address._id === selectedId) ?? null;
   const country = selectedAddress?.country_code ?? "AE";
-  const showCodFooter = paymentMethod === "cod";
+  const normalizedDefault = defaultPaymentMethod?.trim().toLowerCase() ?? null;
+  const autoPlace = Boolean(paymentMethod && paymentMethod !== "cod" && paymentMethod !== normalizedDefault);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -75,52 +76,54 @@ export default function CheckoutPayment({
                 {fields("shippingUnavailable")}
               </p>
             ) : null}
-
-            {shippingAvailable && paymentMethod === "tabby" && enabled.tabby ? (
-              <TabbyCheckout
-                autoStart
-                totalsMethod={cartMethod ?? null}
-                billingAddressId={selectedId}
-                shippingAddressId={selectedId}
-                country={country}
-                shippingAvailable={shippingAvailable}
-              />
-            ) : null}
-
-            {shippingAvailable && paymentMethod === "ziina" && enabled.ziina ? (
-              <ZiinaCheckout
-                autoStart
-                totalsMethod={cartMethod ?? null}
-                billingAddressId={selectedId}
-                shippingAddressId={selectedId}
-                shippingAvailable={shippingAvailable}
-              />
-            ) : null}
-
-            {shippingAvailable && paymentMethod === "tamara" && enabled.tamara ? (
-              <TamaraCheckout
-                autoStart
-                totalsMethod={cartMethod ?? null}
-                billingAddressId={selectedId}
-                shippingAddressId={selectedId}
-                shippingAvailable={shippingAvailable}
-              />
-            ) : null}
           </div>
         </div>
       </div>
 
-      {shippingAvailable && showCodFooter ? (
+      {shippingAvailable && paymentMethod ? (
         <div className={footerClassName}>
-          <CodCheckout
-            totalsMethod={cartMethod ?? null}
-            billingAddressId={selectedId}
-            shippingAddressId={selectedId}
-            country={country}
-            shippingAvailable={shippingAvailable}
-            onPlaced={(order) => onPlaced?.(order)}
-            buttonClassName={placeButtonClassName}
-          />
+          {paymentMethod === "cod" ? (
+            <CodCheckout
+              totalsMethod={cartMethod ?? null}
+              billingAddressId={selectedId}
+              shippingAddressId={selectedId}
+              country={country}
+              shippingAvailable={shippingAvailable}
+              onPlaced={(order) => onPlaced?.(order)}
+              buttonClassName={placeButtonClassName}
+            />
+          ) : null}
+          {paymentMethod === "tabby" && enabled.tabby ? (
+            <TabbyCheckout
+              autoStart={autoPlace}
+              totalsMethod={cartMethod ?? null}
+              billingAddressId={selectedId}
+              shippingAddressId={selectedId}
+              country={country}
+              shippingAvailable={shippingAvailable}
+              buttonClassName={placeButtonClassName}
+            />
+          ) : null}
+          {paymentMethod === "ziina" && enabled.ziina ? (
+            <ZiinaCheckout
+              autoStart={autoPlace}
+              totalsMethod={cartMethod ?? null}
+              billingAddressId={selectedId}
+              shippingAddressId={selectedId}
+              shippingAvailable={shippingAvailable}
+              buttonClassName={placeButtonClassName}
+            />
+          ) : null}
+          {paymentMethod === "tamara" && enabled.tamara ? (
+            <TamaraCheckout
+              autoStart={autoPlace}
+              totalsMethod={cartMethod ?? null}
+              billingAddressId={selectedId}
+              shippingAddressId={selectedId}
+              shippingAvailable={shippingAvailable}
+              buttonClassName={placeButtonClassName}
+            />
+          ) : null}
         </div>
       ) : null}
     </div>

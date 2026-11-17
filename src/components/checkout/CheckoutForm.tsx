@@ -164,12 +164,14 @@ function AddressLines({ address, defaultLabel }: { address: AddressEntity; defau
 
 export default function CheckoutForm({
   paymentMethod,
+  defaultPaymentMethod = null,
   enabled,
   shippingAvailable,
   onPaymentMethodChange,
   onPlaced,
 }: {
   paymentMethod: PaymentMethod;
+  defaultPaymentMethod?: string | null;
   enabled: EnabledGateways;
   shippingAvailable: boolean;
   onPaymentMethodChange: (method: PaymentMethod) => void;
@@ -201,6 +203,7 @@ export default function CheckoutForm({
   const shippingCountry = shippingAddress?.country_code ?? "AE";
   const [phoneCountryCode, setPhoneCountryCode] = useState("971");
   const [isDefault, setIsDefault] = useState(false);
+  const mustBeDefault = addresses.length === 0 || (Boolean(editingAddress) && addresses.length === 1);
   const [postalCode, setPostalCode] = useState("");
 
   const validationSchema = useMemo(() => checkoutValidationSchema((countryCode) => State.getStatesOfCountry(countryCode)), []);
@@ -211,7 +214,7 @@ export default function CheckoutForm({
     onSubmit: async (values) => {
       try {
         if (editingAddress) {
-          const payload = toAddressPayload(values, phoneCountryCode, isDefault, postalCode);
+          const payload = toAddressPayload(values, phoneCountryCode, mustBeDefault || isDefault, postalCode);
           await updateAddress({ addressId: editingAddress._id, ...payload }).unwrap();
           setPickedId(editingAddress._id);
         } else {
@@ -288,7 +291,7 @@ export default function CheckoutForm({
         email: address.email ?? "",
       },
     });
-    setIsDefault(address.is_default);
+    setIsDefault(addresses.length === 1 || address.is_default);
     setPostalCode(address.postal_code ?? "");
     setEditingAddress(address);
     setFormOpen(true);
@@ -450,11 +453,27 @@ export default function CheckoutForm({
         ) : null}
 
         {paymentMethod === "tabby" && enabled.tabby ? (
-          <TabbyCheckout billingAddressId={selectedId} shippingAddressId={shippingId} country={shippingCountry} shippingAvailable={shippingAvailable} />
+          <TabbyCheckout
+            autoStart={paymentMethod !== defaultPaymentMethod}
+            billingAddressId={selectedId}
+            shippingAddressId={shippingId}
+            country={shippingCountry}
+            shippingAvailable={shippingAvailable}
+          />
         ) : paymentMethod === "ziina" && enabled.ziina ? (
-          <ZiinaCheckout billingAddressId={selectedId} shippingAddressId={shippingId} shippingAvailable={shippingAvailable} />
+          <ZiinaCheckout
+            autoStart={paymentMethod !== defaultPaymentMethod}
+            billingAddressId={selectedId}
+            shippingAddressId={shippingId}
+            shippingAvailable={shippingAvailable}
+          />
         ) : paymentMethod === "tamara" && enabled.tamara ? (
-          <TamaraCheckout billingAddressId={selectedId} shippingAddressId={shippingId} shippingAvailable={shippingAvailable} />
+          <TamaraCheckout
+            autoStart={paymentMethod !== defaultPaymentMethod}
+            billingAddressId={selectedId}
+            shippingAddressId={shippingId}
+            shippingAvailable={shippingAvailable}
+          />
         ) : paymentMethod === "cod" ? (
           <CodCheckout billingAddressId={selectedId} shippingAddressId={shippingId} country={shippingCountry} shippingAvailable={shippingAvailable} onPlaced={onPlaced} />
         ) : null}
@@ -656,11 +675,11 @@ export default function CheckoutForm({
         </label>
       </div>
 
-      <label className="mt-5 flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-heading">
+      <label className={`mt-5 flex items-center gap-2.5 text-sm font-semibold text-heading ${mustBeDefault ? "cursor-default" : "cursor-pointer"}`}>
         <input
           type="checkbox"
-          checked={addresses.length === 0 || isDefault}
-          disabled={addresses.length === 0}
+          checked={mustBeDefault || isDefault}
+          disabled={mustBeDefault}
           onChange={(event) => setIsDefault(event.target.checked)}
           className="size-4 accent-primary disabled:cursor-default"
         />

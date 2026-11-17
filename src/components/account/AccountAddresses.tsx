@@ -122,6 +122,7 @@ export function AccountAddresses() {
   const [editingAddress, setEditingAddress] = useState<AddressEntity | null>(null);
   const [phoneCountryCode, setPhoneCountryCode] = useState("971");
   const [isDefault, setIsDefault] = useState(false);
+  const mustBeDefault = addresses.length === 0 || (Boolean(editingAddress) && addresses.length === 1);
   const [postalCode, setPostalCode] = useState("");
 
   const validationSchema = useMemo(() => checkoutValidationSchema((countryCode) => State.getStatesOfCountry(countryCode)), []);
@@ -130,7 +131,7 @@ export function AccountAddresses() {
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      const payload = toAddressPayload(values, phoneCountryCode, isDefault, postalCode);
+      const payload = toAddressPayload(values, phoneCountryCode, mustBeDefault || isDefault, postalCode);
       try {
         if (editingAddress) {
           await updateAddress({ addressId: editingAddress._id, ...payload }).unwrap();
@@ -186,7 +187,7 @@ export function AccountAddresses() {
         email: address.email ?? "",
       },
     });
-    setIsDefault(address.is_default);
+    setIsDefault(addresses.length === 1 || address.is_default);
     setPostalCode(address.postal_code ?? "");
     setEditingAddress(address);
     setFormOpen(true);
@@ -298,8 +299,14 @@ export function AccountAddresses() {
             {fieldError("email") ? <p className="mt-1.5 text-xs font-normal text-primary">{fieldError("email")}</p> : null}
           </label>
         </div>
-        <label className="mt-5 flex cursor-pointer items-center gap-2.5 text-sm font-semibold text-heading">
-          <input type="checkbox" checked={isDefault} onChange={(event) => setIsDefault(event.target.checked)} className="size-4 accent-primary" />
+        <label className={`mt-5 flex items-center gap-2.5 text-sm font-semibold text-heading ${mustBeDefault ? "cursor-default" : "cursor-pointer"}`}>
+          <input
+            type="checkbox"
+            checked={mustBeDefault || isDefault}
+            disabled={mustBeDefault}
+            onChange={(event) => setIsDefault(event.target.checked)}
+            className="size-4 accent-primary disabled:cursor-default"
+          />
           {checkout("setDefault")}
         </label>
         <div className="mt-5 flex flex-wrap gap-3">

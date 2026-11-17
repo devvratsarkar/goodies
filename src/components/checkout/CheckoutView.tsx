@@ -1,23 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // import { useAuth } from "@/components/auth/AuthProvider";
 // import CheckoutAuth from "@/components/auth/CheckoutAuth";
 import CartSummary from "@/components/cart/CartSummary";
 import CheckoutForm from "@/components/checkout/CheckoutForm";
 import PaymentReturn from "@/components/checkout/PaymentReturn";
-import { type EnabledGateways, type PaymentMethod } from "@/components/checkout/PaymentMethods";
-import { rememberSwitchedMethod } from "@/components/checkout/usePlaceWhenSignedIn";
+import { resolveDefaultPaymentMethod, type EnabledGateways, type PaymentMethod } from "@/components/checkout/PaymentMethods";
 import { PlacedOrder } from "@/server/types/order";
 import { useGetCartQuery } from "@/store/endpoints/cartApi";
 import { getCheckoutClassicRoutePath } from "@/utils/routes";
 
 function startingMethod(value: string | undefined, enabled: EnabledGateways): PaymentMethod {
-  if ((value === "tabby" || value === "ziina" || value === "tamara") && enabled[value]) return value;
-  if (enabled.ziina) return "ziina";
-  if (enabled.tabby) return "tabby";
-  if (enabled.tamara) return "tamara";
-  return "cod";
+  return resolveDefaultPaymentMethod(value, enabled) ?? (enabled.ziina ? "ziina" : enabled.tabby ? "tabby" : enabled.tamara ? "tamara" : "cod");
 }
 
 export default function CheckoutView({ shopHref, defaultPaymentMethod, enabled }: { shopHref: string; defaultPaymentMethod?: string; enabled: EnabledGateways }) {
@@ -34,7 +29,6 @@ export default function CheckoutView({ shopHref, defaultPaymentMethod, enabled }
   // }, [ready, token]);
 
   function onPaymentMethodChange(method: PaymentMethod) {
-    rememberSwitchedMethod(method, defaultMethod);
     setPaymentMethod(method);
   }
 
@@ -65,7 +59,7 @@ export default function CheckoutView({ shopHref, defaultPaymentMethod, enabled }
         /> */}
       {/* ) : null} */}
       <div className="mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-10">
-        <CheckoutForm paymentMethod={paymentMethod} enabled={enabled} shippingAvailable={shippingAvailable} onPaymentMethodChange={onPaymentMethodChange} onPlaced={setPlacedOrder} />
+        <CheckoutForm paymentMethod={paymentMethod} defaultPaymentMethod={defaultMethod} enabled={enabled} shippingAvailable={shippingAvailable} onPaymentMethodChange={onPaymentMethodChange} onPlaced={setPlacedOrder} />
         <CartSummary showItems paymentMethod={paymentMethod} />
       </div>
     </>
