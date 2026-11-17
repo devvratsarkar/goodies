@@ -125,7 +125,7 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
       {open && containerRef?.current
         ? createPortal(
             <div className="absolute inset-0 z-30 flex items-end justify-center">
-              <div className="absolute inset-0 bg-black/55 overlay-blur" />
+              <div className="absolute inset-0 bg-black/55" />
               <div className="relative z-10 flex w-full max-w-xl flex-col items-center px-0 sm:px-4">
                 <button
                   type="button"

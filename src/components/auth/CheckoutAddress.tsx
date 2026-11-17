@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import Country from "country-state-city/lib/country";
 import State from "country-state-city/lib/state";
 import { useFormik } from "formik";
@@ -9,6 +9,7 @@ import { LuPencil, LuPlus, LuTrash2 } from "react-icons/lu";
 import Select, { type StylesConfig } from "react-select";
 import type { InferType } from "yup";
 import PhoneField from "@/components/auth/PhoneField";
+import CheckoutAlert from "@/components/checkout/CheckoutAlert";
 import DeleteAddressConfirm from "@/components/checkout/DeleteAddressConfirm";
 import { RequiredMark } from "@/components/form/RequiredMark";
 import { useModal } from "@/components/layout/common/ModalProvider";
@@ -16,6 +17,7 @@ import CheckoutFormSkeleton from "@/components/skeletons/CheckoutFormSkeleton";
 import { AddressEntity } from "@/server/types/address";
 import type { UserProfile } from "@/server/types/user";
 import { useAddAddressMutation, useGetAddressesQuery, useUpdateAddressMutation } from "@/store/endpoints/addressApi";
+import { useGetCartQuery } from "@/store/endpoints/cartApi";
 import { useGetUserProfileQuery } from "@/store/endpoints/userApi";
 import { checkoutValidationSchema } from "@/validations";
 
@@ -159,6 +161,7 @@ export default function CheckoutAddress({
   const locale = useLocale();
   const { openModal } = useModal();
   const { data: addresses = [], isLoading } = useGetAddressesQuery();
+  const { data: cart, isFetching: cartFetching, fulfilledTimeStamp = 0 } = useGetCartQuery();
   const { data: profile } = useGetUserProfileQuery();
   const [addAddress] = useAddAddressMutation();
   const [updateAddress] = useUpdateAddressMutation({ fixedCacheKey: "selected-address" });
@@ -169,8 +172,14 @@ export default function CheckoutAddress({
   const [postalCode, setPostalCode] = useState("");
   const [isDefault, setIsDefault] = useState(false);
   const [continuing, setContinuing] = useState(false);
+  const [savingSelection, setSavingSelection] = useState(false);
+  const stampAtPick = useRef(0);
+  const savingId = useRef<string | null>(null);
 
-  const selectedId = pickedId ?? addresses.find((address) => address.is_selected)?._id ?? addresses.find((address) => address.is_default)?._id ?? null;
+  const serverSelectedId = addresses.find((address) => address.is_selected)?._id ?? null;
+  const selectedId = pickedId ?? serverSelectedId ?? addresses.find((address) => address.is_default)?._id ?? null;
+  const shippingKnown = Boolean(selectedId) && selectedId === serverSelectedId && !savingSelection && !cartFetching && fulfilledTimeStamp > stampAtPick.current;
+  const shippingBlocked = shippingKnown && cart?.summary?.shipping_rate_available === false;
   const mustBeDefault = addresses.length === 0 || (Boolean(editingAddress) && addresses.length === 1);
   const needsForm = !isLoading && (addresses.length === 0 || showForm);
   const formInitialValues = useMemo(() => valuesFromProfile(profile), [profile]);
@@ -288,14 +297,27 @@ export default function CheckoutAddress({
     return error ? fields(error as ValidationMessageKey) : undefined;
   }
 
+  useEffect(() => {
+    if (needsForm || isLoading || !selectedId || selectedId === serverSelectedId || savingId.current === selectedId) return;
+    savingId.current = selectedId;
+    stampAtPick.current = fulfilledTimeStamp;
+    setSavingSelection(true);
+    updateAddress({ addressId: selectedId, is_selected: true })
+      .unwrap()
+      .catch((error) => {
+        console.error("Error selecting address", error);
+        setPickedId(serverSelectedId);
+      })
+      .finally(() => {
+        if (savingId.current === selectedId) setSavingSelection(false);
+      });
+  }, [needsForm, isLoading, selectedId, serverSelectedId, fulfilledTimeStamp, updateAddress]);
+
   async function continueWithSelected() {
-    if (!selectedId || continuing) return;
+    if (!selectedId || continuing || !shippingKnown || shippingBlocked) return;
     setContinuing(true);
     try {
-      await updateAddress({ addressId: selectedId, is_selected: true }).unwrap();
       onDone?.();
-    } catch (error) {
-      console.error("Error selecting address", error);
     } finally {
       setContinuing(false);
     }
@@ -531,11 +553,12 @@ export default function CheckoutAddress({
       </div>
 
       <div className={footerClassName}>
+        {shippingBlocked ? <CheckoutAlert message={fields("shippingUnavailable")} /> : null}
         <button
           type="button"
-          disabled={!selectedId || continuing}
+          disabled={!selectedId || continuing || savingSelection || !shippingKnown || shippingBlocked}
           onClick={continueWithSelected}
-          className="inline-flex h-11 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:opacity-70"
+          className="inline-flex h-11 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-70"
         >
           {continuing ? t("saving") : t("continue")}
         </button>

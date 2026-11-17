@@ -11,6 +11,7 @@ import type { InferType } from "yup";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useOpenOtp } from "@/components/auth/OTPScreen";
 import PhoneField from "@/components/auth/PhoneField";
+import CheckoutAlert from "@/components/checkout/CheckoutAlert";
 import CodCheckout from "@/components/checkout/CodCheckout";
 import DeleteAddressConfirm from "@/components/checkout/DeleteAddressConfirm";
 import PaymentMethods, { type EnabledGateways, type PaymentMethod } from "@/components/checkout/PaymentMethods";
@@ -446,11 +447,7 @@ export default function CheckoutForm({
           <PaymentMethods value={paymentMethod} enabled={enabled} disabled={!shippingAvailable} onChange={onPaymentMethodChange} />
         ) : null}
 
-        {selectedId && !shippingAvailable ? (
-          <p role="alert" className="mt-4 text-sm font-medium text-primary">
-            {t("shippingUnavailable")}
-          </p>
-        ) : null}
+        {selectedId && !shippingAvailable ? <CheckoutAlert message={t("shippingUnavailable")} className="mt-4" /> : null}
 
         {paymentMethod === "tabby" && enabled.tabby ? (
           <TabbyCheckout

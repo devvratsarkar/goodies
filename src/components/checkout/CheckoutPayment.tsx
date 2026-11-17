@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import CheckoutAlert from "@/components/checkout/CheckoutAlert";
 import CodCheckout from "@/components/checkout/CodCheckout";
 import PaymentMethods, { type EnabledGateways, type PaymentMethod } from "@/components/checkout/PaymentMethods";
 import TabbyCheckout from "@/components/checkout/TabbyCheckout";
@@ -71,11 +72,7 @@ export default function CheckoutPayment({
               onChange={onPaymentMethodChange}
             />
 
-            {selectedId && !shippingAvailable ? (
-              <p role="alert" className="text-sm font-medium text-primary">
-                {fields("shippingUnavailable")}
-              </p>
-            ) : null}
+            {selectedId && !shippingAvailable ? <CheckoutAlert message={fields("shippingUnavailable")} /> : null}
           </div>
         </div>
       </div>
