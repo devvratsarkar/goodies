@@ -34,6 +34,9 @@ export interface CartItem {
     mrp: number;
     tax: number;
     total: number;
+    bogo_active?: boolean | null;
+    bogo_label?: string | null;
+    bogo_free_quantity?: number | null;
     createdAt: string;
     updatedAt: string;
     id: number;
@@ -190,6 +193,9 @@ export interface Summary {
     coupon_type?: string | null;
     coupon_value?: number | null;
     discount_amount: number;
+    bogo_active?: boolean | null;
+    bogo_label?: string | null;
+    bogo_discount?: number | null;
     total_amount: number;
     currency: string;
     currency_symbol: string;

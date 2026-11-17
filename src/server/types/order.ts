@@ -126,6 +126,9 @@ export interface OrderDetailsItem {
     quantity: number;
     unit_price: number;
     line_total: number;
+    bogo_active?: boolean | null;
+    bogo_label?: string | null;
+    bogo_free_quantity?: number | null;
     currency?: string;
     currency_symbol?: string;
     bundle_items?: OrderBundleItem[] | null;
@@ -196,6 +199,9 @@ export interface OrderDetailsSummary {
     fee_amount: number;
     grand_total: number;
     tax_amount: number;
+    bogo_active?: boolean | null;
+    bogo_label?: string | null;
+    bogo_discount?: number | null;
     currency: string;
     currency_symbol: string;
 }
@@ -252,6 +258,9 @@ export interface UserOrderItem {
     unit_price: number;
     mrp?: number | null;
     line_total: number;
+    bogo_active?: boolean | null;
+    bogo_label?: string | null;
+    bogo_free_quantity?: number | null;
     tax?: number | null;
     currency?: string | null;
     currency_symbol?: string | null;

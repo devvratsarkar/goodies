@@ -199,6 +199,7 @@ export default function AccountOrderDetail({ id }: { id: string }) {
                       {t("lineQuantity", { count: item.quantity })}
                       {item.quantity > 1 ? ` · ${formatAmount(item.unit_price, item.currency_symbol || currency)}` : ""}
                     </p>
+                    {item.bogo_active && item.bogo_label ? <p className="mt-1 text-xs font-semibold text-primary">{item.bogo_label}</p> : null}
                     {item.cancelled ? (
                       <p className="mt-1">
                         <span className="inline-flex h-6 items-center rounded-full bg-red-50 px-2.5 text-xs font-semibold text-red-700">{t("statusCancelled")}</span>
@@ -285,6 +286,12 @@ export default function AccountOrderDetail({ id }: { id: string }) {
                       {summary.coupon_code ? <span className="mt-0.5 block text-xs font-semibold tracking-wide text-primary">{summary.coupon_code}</span> : null}
                     </dt>
                     <dd className="font-semibold tabular-nums text-price">−{formatAmount(discount, currency)}</dd>
+                  </div>
+                ) : null}
+                {summary.bogo_active ? (
+                  <div className="flex items-start justify-between gap-3">
+                    <dt className="min-w-0 text-muted">{summary.bogo_label}</dt>
+                    <dd className="shrink-0 font-semibold tabular-nums text-price">−{formatAmount(summary.bogo_discount ?? 0, currency)}</dd>
                   </div>
                 ) : null}
                 <div className="flex items-center justify-between gap-3">

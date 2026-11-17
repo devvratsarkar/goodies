@@ -62,6 +62,9 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
   const shippingIsFree = cartShipping?.is_free_shipping === true;
   const codCharge = codMethod?.charge ?? 0;
   const codIsFree = codMethod?.is_free ?? false;
+  const bogoActive = cartSummary?.bogo_active === true;
+  const bogoLabel = cartSummary?.bogo_label ?? "";
+  const bogoDiscount = cartSummary?.bogo_discount ?? 0;
   const taxAmount = cartSummary?.tax_amount ?? 0;
   const totalAmount = cartSummary?.total_amount ?? 0;
   const currencySymbol = cartSummary?.currency_symbol ?? "";
@@ -162,6 +165,12 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
                     <LuX aria-hidden className="size-3.5" />
                   </button>
                 </dd>
+              </div>
+            ) : null}
+            {bogoActive ? (
+              <div className="flex items-start justify-between gap-3">
+                <dt className="min-w-0 text-muted">{bogoLabel}</dt>
+                <dd className="shrink-0 font-semibold tabular-nums text-price">−{formatAmount(bogoDiscount, currencySymbol)}</dd>
               </div>
             ) : null}
             {cartSummary?.shipping_rate_available ? (

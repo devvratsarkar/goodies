@@ -177,6 +177,7 @@ export default function CartDrawer() {
                             <p className="mt-1 text-sm text-muted">{formatAmount(unitPrice, item.product_id?.pricing_context?.currency_symbol || symbol)}</p>
                             {color ? <p className="mt-1 text-xs text-muted">{t("color", { value: color })}</p> : null}
                             {size ? <p className={`text-xs text-muted ${color ? "mt-0.5" : "mt-1"}`}>{t("size", { value: size })}</p> : null}
+                            {item.bogo_active && item.bogo_label ? <p className="mt-1 text-xs font-semibold text-primary">{item.bogo_label}</p> : null}
                             {bundleSelections.length > 0 ? (
                               <div className="mt-2">
                                 <p className="text-xs font-semibold text-heading">{cartText("bundleContains")}</p>

@@ -198,6 +198,16 @@ button {
   color: var(--heading);
 }
 
+.cart-details[data-variant="sheet"] .cart-item-price.is-multi {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.cart-details[data-variant="sheet"] .cart-item-sheet-total {
+  font-weight: 700;
+  color: var(--heading);
+}
+
 .cart-details[data-variant="sheet"] .cart-item-bundle,
 .cart-details[data-variant="sheet"] .cart-item-line-total {
   display: none;

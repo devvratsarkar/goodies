@@ -290,6 +290,7 @@ export default function PaymentReturn({ status, orderId, orderNumber, message, s
                           {item.size ? `${item.size} · ` : ""}
                           {cart("itemQty", { count: item.quantity ?? 0 })}
                         </p>
+                        {item.bogo_active && item.bogo_label ? <p className="mt-1 text-xs font-semibold text-primary">{item.bogo_label}</p> : null}
                       </div>
                       <p className="shrink-0 text-sm font-semibold tabular-nums text-price">
                         {formatAmount(item.line_total ?? 0, item.currency_symbol || currency)}
@@ -318,6 +319,12 @@ export default function PaymentReturn({ status, orderId, orderNumber, message, s
                     ) : null}
                   </dt>
                   <dd className="font-semibold tabular-nums text-price">−{formatAmount(discount, currency)}</dd>
+                </div>
+              ) : null}
+              {summary.bogo_active ? (
+                <div className="flex items-start justify-between gap-3">
+                  <dt className="min-w-0 text-muted">{summary.bogo_label}</dt>
+                  <dd className="shrink-0 font-semibold tabular-nums text-price">−{formatAmount(summary.bogo_discount ?? 0, currency)}</dd>
                 </div>
               ) : null}
               <div className="flex items-center justify-between gap-3">

@@ -197,6 +197,7 @@ function OrderCard({
                     title
                   )}
                   <p className="mt-0.5 text-sm text-muted">{t("lineQuantity", { count: item.quantity })}</p>
+                  {item.bogo_active && item.bogo_label ? <p className="mt-1 text-xs font-semibold text-primary">{item.bogo_label}</p> : null}
                 </div>
                 <p className="shrink-0 text-sm font-semibold tabular-nums text-price">
                   {formatAmount(item.line_total, item.currency_symbol || order.currency)}

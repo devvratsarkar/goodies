@@ -115,6 +115,9 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
             const itemMaxQuantity = stockSource?.stock_manage ? Math.min(maxQuantity, stockSource.stock ?? 0) : maxQuantity;
             const productHref = getProductRoutePath(item?.product_id?.slug ?? "", item?.product_type === "variable" ? item?.variant_sku : null);
             const size = item?.selected_size || item?.selected_variant?.size || item?.selected_attributes?.size || "";
+            const unitPrice = item?.selected_variant?.price ?? 0;
+            const lineTotal = unitPrice * (quantity ?? 0);
+            const priceSymbol = item?.product_id?.pricing_context?.currency_symbol || currencySymbol;
 
             return (
               <li key={item?._id ?? index} className="cart-item flex gap-4 p-4 sm:gap-5 sm:p-5">
@@ -135,8 +138,13 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
                         {item?.product_id?.title}
                       </Link>
                       {size ? <p className="mt-0.5 text-xs text-muted">{miniCart("size", { value: size })}</p> : null}
-                      <p className="cart-item-price mt-1 text-sm text-muted">
-                        {formatAmount(item?.selected_variant?.price, item?.product_id?.pricing_context?.currency_symbol ?? "")}
+                      {item?.bogo_active && item.bogo_label ? <p className="mt-1 text-xs font-semibold text-primary">{item.bogo_label}</p> : null}
+                      <p className={`cart-item-price mt-1 flex flex-wrap items-baseline gap-x-2 text-sm text-muted ${quantity > 1 ? "is-multi" : ""}`}>
+                        <span>
+                          {formatAmount(unitPrice, priceSymbol)}
+                          {isSheet && quantity > 1 ? ` × ${quantity}` : ""}
+                        </span>
+                        {isSheet && quantity > 1 ? <span className="cart-item-sheet-total font-bold tabular-nums text-heading">{formatAmount(lineTotal, priceSymbol)}</span> : null}
                       </p>
                       {bundleSelections.length > 0 ? (
                         <div className="cart-item-bundle mt-2">
@@ -194,7 +202,7 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
                       </button>
                     </div>
                     <p className="cart-item-line-total shrink-0 text-sm font-semibold text-price sm:text-base">
-                      {formatAmount(item?.selected_variant?.price * quantity, currencySymbol)}
+                      {formatAmount(lineTotal, currencySymbol)}
                     </p>
                   </div>
                 </div>
