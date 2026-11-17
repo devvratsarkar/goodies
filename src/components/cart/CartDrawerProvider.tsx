@@ -40,7 +40,6 @@ export function CartDrawerProvider({ children }: { children: ReactNode }) {
   const openCart = useCallback(() => setOpen(true), []);
   const closeCart = useCallback(() => setOpen(false), []);
   const openCheckout = useCallback(() => {
-    setOpen(false);
     setCheckoutOpen(true);
   }, []);
   const closeCheckout = useCallback(() => setCheckoutOpen(false), []);

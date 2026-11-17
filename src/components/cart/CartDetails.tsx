@@ -166,9 +166,9 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
                     <div className="cart-item-qty inline-flex h-9 items-center rounded-full border border-border bg-background">
                       <button
                         type="button"
-                        aria-label={t("decrease", { name: item?.product_id?.title })}
-                        disabled={isUpdatingQuantity || quantity <= minQuantity}
-                        onClick={() => updateCartItemQuantity(item?._id, quantity - 1)}
+                        aria-label={quantity <= minQuantity ? t("remove", { name: item?.product_id?.title }) : t("decrease", { name: item?.product_id?.title })}
+                        disabled={isUpdatingQuantity}
+                        onClick={() => (quantity <= minQuantity ? removeCartItem(item?._id, item?.product_id?.title) : updateCartItemQuantity(item?._id, quantity - 1))}
                         className="inline-flex size-9 items-center justify-center rounded-full text-heading transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:text-border"
                       >
                         <LuMinus aria-hidden className="size-3.5" />

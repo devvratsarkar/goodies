@@ -35,6 +35,7 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
   const { isOpen: isModalOpen } = useModal();
   const { data: settings } = useGetGlobalSettingsQuery();
   const dialogRef = useRef<HTMLDivElement>(null);
+  const addressBackRef = useRef<(() => boolean) | null>(null);
   const celebratedExistingRef = useRef<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [dismissed, setDismissed] = useState(false);
@@ -110,6 +111,7 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
       setStep("address");
       return;
     }
+    if (step === "address" && addressBackRef.current?.()) return;
     close();
   }
 
@@ -170,7 +172,7 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
         role="dialog"
         aria-modal="true"
         tabIndex={-1}
-        className="relative z-10 flex h-full w-full flex-col overflow-hidden bg-surface-soft outline-none sm:w-1/2 xl:w-1/3"
+        className="relative z-10 flex h-full w-full flex-col overflow-hidden bg-surface-soft outline-none sm:w-1/2 xl:w-2/5"
       >
         <header className="relative flex h-16 shrink-0 items-center justify-center bg-white px-12">
           <button
@@ -196,7 +198,7 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
             </div>
           </div>
         ) : step === "address" ? (
-          <CheckoutAddress onDone={() => setStep("payment")} header={orderSummary} />
+          <CheckoutAddress backRef={addressBackRef} onDone={() => setStep("payment")} header={orderSummary} />
         ) : (
           <CheckoutPayment
             header={orderSummary}

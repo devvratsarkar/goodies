@@ -94,7 +94,7 @@ export default function CartDrawer() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="cart-drawer-title"
-          inert={open ? undefined : true}
+          inert={open && !checkoutOpen ? undefined : true}
           className={`flex h-full flex-col border-s border-border/40 bg-background shadow-none transition-[transform,box-shadow] duration-300 ease-out motion-reduce:transition-none ${
             open
               ? "translate-x-0 shadow-[-4px_0_24px_-4px_rgb(0_0_0/0.18)] rtl:shadow-[4px_0_24px_-4px_rgb(0_0_0/0.18)]"
@@ -202,9 +202,9 @@ export default function CartDrawer() {
                           <div className="inline-flex h-9 items-center rounded-full border border-border bg-background">
                             <button
                               type="button"
-                              aria-label={cartText("decrease", { name })}
-                              disabled={isUpdatingQuantity || quantity <= minQuantity}
-                              onClick={() => changeQuantity(item._id, quantity - 1)}
+                              aria-label={quantity <= minQuantity ? cartText("remove", { name }) : cartText("decrease", { name })}
+                              disabled={isUpdatingQuantity}
+                              onClick={() => (quantity <= minQuantity ? removeItem(item._id, name) : changeQuantity(item._id, quantity - 1))}
                               className="inline-flex size-9 items-center justify-center rounded-full text-heading transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:text-border"
                             >
                               <LuMinus aria-hidden className="size-3.5" />

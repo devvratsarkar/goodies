@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode, type RefObject } from "react";
 import Country from "country-state-city/lib/country";
 import State from "country-state-city/lib/state";
 import { useFormik } from "formik";
@@ -145,7 +145,15 @@ function AddressLines({ address, defaultLabel }: { address: AddressEntity; defau
   );
 }
 
-export default function CheckoutAddress({ onDone, header }: { onDone?: () => void; header?: ReactNode }) {
+export default function CheckoutAddress({
+  onDone,
+  header,
+  backRef,
+}: {
+  onDone?: () => void;
+  header?: ReactNode;
+  backRef?: RefObject<(() => boolean) | null>;
+}) {
   const t = useTranslations("CheckoutAddress");
   const fields = useTranslations("CheckoutClassicPage");
   const locale = useLocale();
@@ -247,6 +255,18 @@ export default function CheckoutAddress({ onDone, header }: { onDone?: () => voi
     setPostalCode("");
     setIsDefault(false);
   }
+
+  useEffect(() => {
+    if (!backRef) return;
+    backRef.current = () => {
+      if (!showForm || addresses.length === 0) return false;
+      closeForm();
+      return true;
+    };
+    return () => {
+      backRef.current = null;
+    };
+  });
 
   const countryOptions = useMemo<SelectOption[]>(
     () =>
