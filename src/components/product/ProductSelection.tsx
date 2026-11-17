@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import ProductPurchase from "@/components/product/ProductPurchase";
 import ProductTabs from "@/components/product/ProductTabs";
 import { BundleItemsEntity, ReviewsEntity, SizesEntity, Variant, VariantsEntity } from "@/server/types/singleProduct";
@@ -61,6 +61,23 @@ export default function ProductSelection({
   const [sizeName, setSizeName] = useState<string | null>(
     () => variants.find((item) => item.is_default)?.size ?? null,
   );
+
+  useEffect(() => {
+    if (!isVariant || isBundle) return;
+    const sku = new URLSearchParams(window.location.search).get("variant");
+    const match = variants.find((item) => item?.sku === sku);
+    if (match?.size) setSizeName(match.size);
+  }, [isVariant, isBundle, variants]);
+
+  function selectSize(next: string | null) {
+    setSizeName(next);
+    if (!isVariant || isBundle) return;
+    const sku = variants.find((item) => item?.size === next)?.sku;
+    const url = new URL(window.location.href);
+    if (sku) url.searchParams.set("variant", sku);
+    else url.searchParams.delete("variant");
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+  }
   const [picked, setPicked] = useState<Record<string, number>>({});
   const selectedVariant = variants.find((item) => item?.size === sizeName);
   const bundleWeight = bundleItems.reduce((sum, item) => {
@@ -95,7 +112,7 @@ export default function ProductSelection({
             sizes={sizes}
             currencySymbol={currencySymbol}
             sizeName={sizeName}
-            onSizeChange={setSizeName}
+            onSizeChange={selectSize}
             productId={productId}
             picked={picked}
             onPickedChange={setPicked}

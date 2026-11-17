@@ -140,17 +140,18 @@ export default function CartDrawer() {
                   const quantity = item.quantity ?? 1;
                   const isBundle = item.product_type === "bundle";
                   const bundleSelections = isBundle ? (item.bundle_selections ?? []) : [];
-                  const stock = isBundle ? item.product_id?.stock : item.selected_variant?.stock;
-                  const itemMaxQuantity = Math.min(maxQuantity, stock ?? maxQuantity);
+                  const stockSource = isBundle ? item.product_id : item.selected_variant;
+                  const itemMaxQuantity = stockSource?.stock_manage ? Math.min(maxQuantity, stockSource.stock ?? 0) : maxQuantity;
                   const unitPrice = item.selected_variant?.price ?? item.single_price;
                   const lineTotal = unitPrice * quantity;
                   const size = itemSize(item);
                   const color = itemColor(item);
+                  const productHref = getProductRoutePath(item.product_id?.slug ?? "", item.product_type === "variable" ? item.variant_sku : null);
 
                   return (
                     <li key={item._id} className="flex gap-3 py-4">
                       <Link
-                        href={getProductRoutePath(item.product_id?.slug ?? "")}
+                        href={productHref}
                         aria-label={name}
                         className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-border/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >
@@ -168,7 +169,7 @@ export default function CartDrawer() {
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <Link
-                              href={getProductRoutePath(item.product_id?.slug ?? "")}
+                              href={productHref}
                               className="line-clamp-2 font-semibold text-heading hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                             >
                               {name}

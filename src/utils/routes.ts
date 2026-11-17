@@ -69,8 +69,8 @@ export function getProductCategoryRoutePath(category: string): string {
   return `/product-category/${category}`;
 }
 
-export function getProductRoutePath(slug: string): string {
-  return `/product/${slug}`;
+export function getProductRoutePath(slug: string, variantSku?: string | null): string {
+  return variantSku ? `/product/${slug}?variant=${encodeURIComponent(variantSku)}` : `/product/${slug}`;
 }
 
 export function getBlogsRoutePath(): string {

@@ -55,6 +55,7 @@ export interface ProductId {
     sku: string;
     status: boolean;
     stock: number;
+    stock_manage?: boolean | null;
     weight: number;
     thumbnail: string;
     product_type: string;
@@ -140,6 +141,7 @@ export interface SelectedAttributes {
 export interface SelectedVariant {
     sku: string;
     stock: number;
+    stock_manage?: boolean | null;
     price: number;
     max_price: number;
     color?: string | null;

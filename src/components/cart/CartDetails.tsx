@@ -67,6 +67,7 @@ type CartDetailsProps = {
 
 export default function CartDetails({ checkoutHref, variant = "page", paymentMethod }: CartDetailsProps) {
   const t = useTranslations("CartPage");
+  const miniCart = useTranslations("MiniCart");
   const { data: cart, isLoading: isLoadingCart } = useGetCartQuery(paymentMethod);
   const [updateQuantity, { isLoading: isUpdatingQuantity }] = useUpdateCartItemQuantityMutation();
   const cartItems = cart?.items ?? [];
@@ -110,13 +111,15 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
             const quantity = item?.quantity;
             const isBundle = item?.product_type === "bundle";
             const bundleSelections = isBundle ? (item?.bundle_selections ?? []) : [];
-            const stock = isBundle ? item?.product_id?.stock : item?.selected_variant?.stock;
-            const itemMaxQuantity = Math.min(maxQuantity, stock ?? maxQuantity);
+            const stockSource = isBundle ? item?.product_id : item?.selected_variant;
+            const itemMaxQuantity = stockSource?.stock_manage ? Math.min(maxQuantity, stockSource.stock ?? 0) : maxQuantity;
+            const productHref = getProductRoutePath(item?.product_id?.slug ?? "", item?.product_type === "variable" ? item?.variant_sku : null);
+            const size = item?.selected_size || item?.selected_variant?.size || item?.selected_attributes?.size || "";
 
             return (
               <li key={item?._id ?? index} className="cart-item flex gap-4 p-4 sm:gap-5 sm:p-5">
                 <Link
-                  href={getProductRoutePath(item?.product_id?.slug)}
+                  href={productHref}
                   aria-label={item?.product_id?.title}
                   className="cart-item-thumb relative size-20 shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-border/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:size-24"
                 >
@@ -126,11 +129,12 @@ export default function CartDetails({ checkoutHref, variant = "page", paymentMet
                   <div className="cart-item-top flex items-start justify-between gap-3">
                     <div className="cart-item-info min-w-0">
                       <Link
-                        href={getProductRoutePath(item?.product_id?.slug)}
+                        href={productHref}
                         className="cart-item-title font-semibold text-heading hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >
                         {item?.product_id?.title}
                       </Link>
+                      {size ? <p className="mt-0.5 text-xs text-muted">{miniCart("size", { value: size })}</p> : null}
                       <p className="cart-item-price mt-1 text-sm text-muted">
                         {formatAmount(item?.selected_variant?.price, item?.product_id?.pricing_context?.currency_symbol ?? "")}
                       </p>

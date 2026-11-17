@@ -79,10 +79,12 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
         <div className="border-b border-border">
           <h2 className="px-5 pt-4 text-lg font-bold tracking-tight">{t("yourOrder")}</h2>
           <ul className="divide-y divide-border px-5">
-            {cartItems.map((item, index) => (
+            {cartItems.map((item, index) => {
+              const productHref = getProductRoutePath(item?.product_id?.slug ?? "", item?.product_type === "variable" ? item?.variant_sku : null);
+              return (
               <li key={item?._id ?? index} className="flex items-center gap-3 py-4">
                 <Link
-                  href={getProductRoutePath(item?.product_id?.slug)}
+                  href={productHref}
                   aria-label={item?.product_id?.title}
                   className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-surface ring-1 ring-border/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
@@ -90,7 +92,7 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
                 </Link>
                 <div className="min-w-0 flex-1">
                   <Link
-                    href={getProductRoutePath(item?.product_id?.slug)}
+                    href={productHref}
                     className="line-clamp-2 text-sm font-semibold text-heading hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     {item?.product_id?.title}
@@ -104,7 +106,8 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
                   {formatAmount((item?.selected_variant?.price ?? 0) * (item?.quantity ?? 0), currencySymbol)}
                 </p>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
       ) : null}
