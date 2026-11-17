@@ -1,6 +1,10 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import type { MouseEvent } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { useModal } from "@/components/layout/common/ModalProvider";
+import { TabbyInstallmentFrame } from "@/components/product/TabbyInstallmentFrame";
+import { openTamaraProductPlans } from "@/components/product/TamaraPromo";
 import { useGetCartQuery } from "@/store/endpoints/cartApi";
 import { formatAmount } from "@/utils/price";
 
@@ -24,12 +28,31 @@ type PaymentMethodsProps = {
 
 export default function PaymentMethods({ value, onChange, variant = "default", primaryMethod = null, enabled, disabled = false }: PaymentMethodsProps) {
   const t = useTranslations("CheckoutClassicPage");
+  const locale = useLocale();
+  const { openModal } = useModal();
   // The default method reuses the page cart. Another method needs its own totals.
   const cartMethod = primaryMethod == null ? (value ?? undefined) : !value || value === primaryMethod ? undefined : value;
   const { data: cart } = useGetCartQuery(cartMethod);
   const cod = cart?.summary?.cod_status ? cart.cod_method : null;
   const methods = (["cod", "ziina", "tabby", "tamara"] as const).filter((method) => (method === "cod" ? Boolean(cod) : enabled[method]));
   const sheet = variant === "sheet";
+  const price = cart?.summary?.total_amount ?? 0;
+  const currency = cart?.summary?.currency ?? "AED";
+  const monthly = formatAmount(Math.round((price / 4) * 100) / 100, cart?.summary?.currency_symbol ?? "");
+
+  function openInstallments(event: MouseEvent<HTMLButtonElement>, method: "tabby" | "tamara") {
+    event.preventDefault();
+    event.stopPropagation();
+    if (method === "tabby") {
+      openModal({
+        title: t("payTabby"),
+        size: "md",
+        content: <TabbyInstallmentFrame price={price} currency={currency} title={t("payTabby")} />,
+      });
+      return;
+    }
+    void openTamaraProductPlans(price, locale).catch(() => undefined);
+  }
 
   return (
     <div className={sheet ? "grid gap-3" : "mt-6 border-t border-border pt-5"}>
@@ -56,30 +79,57 @@ export default function PaymentMethods({ value, onChange, variant = "default", p
                 className="mt-1 size-4 accent-primary disabled:cursor-not-allowed"
               />
               <span className="min-w-0 flex-1">
-                <span className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-bold text-heading">{title}</span>
-                  {isPrimary ? (
-                    <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">{t("primaryMethod")}</span>
+                <span className="flex items-center justify-between gap-2">
+                  <span className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-heading">{title}</span>
+                    {isPrimary ? (
+                      <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-primary-foreground">{t("primaryMethod")}</span>
+                    ) : null}
+                  </span>
+                  {method === "cod" && cod ? (
+                    <span className="shrink-0 text-end text-sm font-bold tabular-nums text-price">
+                      {cod.is_free ? t("free") : t("codExtra", { amount: formatAmount(cod.charge, cart?.summary?.currency_symbol ?? "") })}
+                    </span>
+                  ) : null}
+                  {method === "tabby" ? (
+                    <span className="shrink-0 rounded-md bg-[#3cff7e] px-2 py-1 text-sm font-black tracking-tight text-black lowercase">tabby</span>
+                  ) : null}
+                  {method === "ziina" ? (
+                    <span className="shrink-0 rounded-md bg-black px-2 py-1 text-sm font-black tracking-tight text-white lowercase">ziina</span>
+                  ) : null}
+                  {method === "tamara" ? (
+                    <span className="shrink-0 rounded-md bg-linear-to-r from-[#ff8a00] via-[#ff4d8d] to-[#7c3aed] px-2 py-1 text-sm font-bold text-white">tamara</span>
                   ) : null}
                 </span>
                 {note ? <span className="mt-1 block text-sm text-muted">{note}</span> : null}
+                {method === "tabby" || method === "tamara" ? (
+                  <span className="mt-1 flex items-center justify-between gap-2 text-start">
+                    <button
+                      type="button"
+                      onClick={(event) => openInstallments(event, method)}
+                      className="min-w-0 flex-1 text-start text-sm font-semibold text-primary hover:text-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                      {method === "tabby"
+                        ? t.rich("tabbyLearnMore", {
+                            amount: monthly,
+                            price: (chunks) => (
+                              <bdi dir="ltr" className="whitespace-nowrap">
+                                {chunks}
+                              </bdi>
+                            ),
+                          })
+                        : t("tamaraLearnMore")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(event) => openInstallments(event, method)}
+                      className="shrink-0 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold whitespace-nowrap text-primary-foreground hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    >
+                      {t("viewOptions")}
+                    </button>
+                  </span>
+                ) : null}
               </span>
-              {method === "cod" && cod ? (
-                <span className="shrink-0 text-end text-sm font-bold tabular-nums text-price">
-                  {cod.is_free
-                    ? t("free")
-                    : t("codExtra", { amount: formatAmount(cod.charge, cart?.summary?.currency_symbol ?? "") })}
-                </span>
-              ) : null}
-              {method === "tabby" ? (
-                <span className="shrink-0 rounded-md bg-[#3cff7e] px-2 py-1 text-sm font-black tracking-tight text-black lowercase">tabby</span>
-              ) : null}
-              {method === "ziina" ? (
-                <span className="shrink-0 rounded-md bg-black px-2 py-1 text-sm font-black tracking-tight text-white lowercase">ziina</span>
-              ) : null}
-              {method === "tamara" ? (
-                <span className="shrink-0 rounded-md bg-linear-to-r from-[#ff8a00] via-[#ff4d8d] to-[#7c3aed] px-2 py-1 text-sm font-bold text-white">tamara</span>
-              ) : null}
             </label>
           );
         })}

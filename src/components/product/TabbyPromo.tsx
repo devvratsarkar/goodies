@@ -1,6 +1,7 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
+import { TabbyInstallmentFrame } from "@/components/product/TabbyInstallmentFrame";
 import { useModal } from "@/components/layout/common/ModalProvider";
 import { formatAmount } from "@/utils/price";
 
@@ -11,23 +12,13 @@ type TabbyPromoProps = {
 
 export default function TabbyPromo({ price, currencySymbol }: TabbyPromoProps) {
   const t = useTranslations("ProductPage");
-  const locale = useLocale();
   const { openModal } = useModal();
 
   function openTabbyInfo() {
-    const lang = locale === "ar" ? "ar" : "en";
-    // Tabby only accepts currency codes (AED, SAR, KWD), not symbols
-    const src = `https://checkout.tabby.ai/promos/product-page/installments/${lang}/?price=${price}&currency=AED`;
-
     openModal({
       title: t("tabbyModalTitle"),
       size: "md",
-      content: (
-        // edge to edge under the title; the background matches Tabby's page so there is no white flash while it loads
-        <div className="-mx-5 -mb-5 border-t border-border bg-[#f4f3f0]">
-          <iframe src={src}  className="block h-[min(75dvh,680px)] w-full border-0" />
-        </div>
-      ),
+      content: <TabbyInstallmentFrame price={price} currency="AED" title={t("tabbyModalTitle")} />,
     });
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { LuChevronRight, LuX } from "react-icons/lu";
 import CartCoupons from "@/components/cart/CartCoupons";
@@ -22,9 +23,10 @@ export type CouponCelebrationEvent = CouponCelebration & {
 type OrderSummaryProps = {
   paymentMethod?: PaymentMethod;
   onCouponApplied?: (celebration: CouponCelebrationEvent) => void;
+  containerRef?: RefObject<HTMLElement | null>;
 };
 
-export default function OrderSummary({ paymentMethod, onCouponApplied }: OrderSummaryProps) {
+export default function OrderSummary({ paymentMethod, onCouponApplied, containerRef }: OrderSummaryProps) {
   const t = useTranslations("OrderSummary");
   const cartText = useTranslations("CartPage");
   const titleId = useId();
@@ -120,34 +122,37 @@ export default function OrderSummary({ paymentMethod, onCouponApplied }: OrderSu
         ) : null}
       </div>
 
-      {open ? (
-        <div className="fixed inset-0 z-110 flex items-end justify-center">
-          <div className="absolute inset-0 bg-black/55 overlay-blur" onClick={() => setOpen(false)} />
-          <div className="relative z-120 flex w-full max-w-lg flex-col items-center px-0 sm:px-4">
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label={t("close")}
-              className="mb-3 flex size-10 shrink-0 items-center justify-center rounded-full bg-heading text-background shadow-md transition-colors hover:bg-heading/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              <LuX aria-hidden className="size-5" />
-            </button>
-            <div
-              ref={sheetRef}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby={titleId}
-              tabIndex={-1}
-              className="order-summary-sheet flex max-h-[min(78vh,40rem)] w-full flex-col overflow-hidden rounded-t-3xl bg-background px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 shadow-lg outline-none sm:px-5"
-            >
-              <h2 id={titleId} className="order-summary-sheet-header shrink-0 pb-4 text-base font-bold tracking-tight text-heading">
-                {t("title", { count: itemCount })}
-              </h2>
-              <CartDetails variant="sheet" paymentMethod={paymentMethod} />
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {open && containerRef?.current
+        ? createPortal(
+            <div className="absolute inset-0 z-30 flex items-end justify-center">
+              <div className="absolute inset-0 bg-black/55 overlay-blur" onClick={() => setOpen(false)} />
+              <div className="relative z-10 flex w-full max-w-lg flex-col items-center px-0 sm:px-4">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label={t("close")}
+                  className="mb-3 flex size-10 shrink-0 items-center justify-center rounded-full bg-heading text-background shadow-md transition-colors hover:bg-heading/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                >
+                  <LuX aria-hidden className="size-5" />
+                </button>
+                <div
+                  ref={sheetRef}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby={titleId}
+                  tabIndex={-1}
+                  className="order-summary-sheet flex max-h-[min(78vh,40rem)] w-full flex-col overflow-hidden rounded-t-3xl bg-background px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 shadow-lg outline-none sm:px-5"
+                >
+                  <h2 id={titleId} className="order-summary-sheet-header shrink-0 pb-4 text-base font-bold tracking-tight text-heading">
+                    {t("title", { count: itemCount })}
+                  </h2>
+                  <CartDetails variant="sheet" paymentMethod={paymentMethod} />
+                </div>
+              </div>
+            </div>,
+            containerRef.current,
+          )
+        : null}
     </>
   );
 }

@@ -122,7 +122,9 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
     dialogRef.current?.focus();
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !couponCelebration && !isModalOpen) {
+      const tamaraPopup = document.querySelector("tamara-widget-popup");
+      if (tamaraPopup && !tamaraPopup.hasAttribute("hide")) return;
+      if (event.key === "Escape" && !couponCelebration && !isModalOpen && !dialogRef.current?.querySelector(".order-summary-sheet")) {
         event.preventDefault();
         event.stopPropagation();
         close();
@@ -130,10 +132,9 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
     }
 
     function blockBackgroundScroll(event: TouchEvent | WheelEvent) {
-      const target = event.target;
-      if (!(target instanceof Node) || !dialogRef.current?.contains(target)) {
-        event.preventDefault();
-      }
+      const path = event.composedPath();
+      const inside = path.some((node) => node instanceof Element && (node === dialogRef.current || node.tagName === "TAMARA-WIDGET-POPUP"));
+      if (!inside) event.preventDefault();
     }
 
     document.addEventListener("keydown", onKeyDown, true);
@@ -152,7 +153,7 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
 
   if (!mounted || !visible) return null;
 
-  const orderSummary = <OrderSummary paymentMethod={cartMethod} onCouponApplied={onCouponApplied} />;
+  const orderSummary = <OrderSummary containerRef={dialogRef} paymentMethod={cartMethod} onCouponApplied={onCouponApplied} />;
   const backLabel = step === "payment" ? paymentText("back") : t("back");
 
   return createPortal(
@@ -163,7 +164,7 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
         role="dialog"
         aria-modal="true"
         tabIndex={-1}
-        className="relative z-10 flex h-full w-full flex-col bg-surface-soft outline-none sm:w-1/2 xl:w-1/3"
+        className="relative z-10 flex h-full w-full flex-col overflow-hidden bg-surface-soft outline-none sm:w-1/2 xl:w-1/3"
       >
         <header className="relative flex h-16 shrink-0 items-center justify-center bg-white px-12">
           <button
@@ -174,9 +175,9 @@ export default function CheckoutAuth({ open = true, onClose }: CheckoutAuthProps
           >
             <LuChevronLeft aria-hidden className="size-5 rtl:rotate-180" />
           </button>
-          <Link href={getHomeRoutePath()} className="inline-flex">
+          {/* <Link href={getHomeRoutePath()} className="inline-flex"> */}
             <ImageComponent src="/logo/logo.webp" alt={t("brand")} width={80} height={80} sizes="80px" objectFit="contain" className="h-14! w-auto" />
-          </Link>
+          {/* </Link> */}
         </header>
 
         {step === "email" ? (
