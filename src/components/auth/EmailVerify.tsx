@@ -192,20 +192,21 @@ export default function EmailVerify({ onVerified }: { onVerified?: () => void })
           <button
             type="button"
             aria-label={t("editEmail")}
+            disabled={otpForm.isSubmitting}
             onClick={() => {
               setStep("email");
               void otpForm.resetForm();
               setError("");
               setSecondsLeft(0);
             }}
-            className="inline-flex size-7 items-center justify-center rounded-md border border-primary text-primary hover:bg-primary-soft"
+            className="inline-flex size-7 items-center justify-center rounded-md border border-primary text-primary hover:bg-primary-soft disabled:cursor-not-allowed disabled:opacity-70"
           >
             <LuPencil aria-hidden className="size-3.5" />
           </button>
         </p>
       </div>
 
-      <div className="grid w-full sm:w-[70%] grid-cols-6 gap-2" role="group" aria-label={t("otpLabel")}>
+      <div className={`grid w-full sm:w-[70%] grid-cols-6 gap-2 ${otpForm.isSubmitting ? "pointer-events-none opacity-60" : ""}`} role="group" aria-busy={otpForm.isSubmitting} aria-label={t("otpLabel")}>
         {digits.map((digit, index) => (
           <input
             key={index}
@@ -222,7 +223,7 @@ export default function EmailVerify({ onVerified }: { onVerified?: () => void })
             onKeyDown={(event) => {
               if (event.key === "Backspace" && !digit && index > 0) otpRefs.current[index - 1]?.focus();
             }}
-            className={otpInputClass}
+            className={`${otpInputClass} disabled:cursor-wait`}
           />
         ))}
       </div>
@@ -234,15 +235,22 @@ export default function EmailVerify({ onVerified }: { onVerified?: () => void })
         </p>
       ) : null}
 
-      <p className="text-sm font-medium text-primary">
-        {secondsLeft > 0 ? (
-          t("resendIn", { seconds: secondsLeft })
-        ) : (
-          <button type="button" onClick={resend} disabled={resending} className="hover:text-primary-hover disabled:opacity-70">
-            {resending ? t("resending") : t("resend")}
-          </button>
-        )}
-      </p>
+      {otpForm.isSubmitting ? (
+        <p role="status" className="inline-flex items-center gap-2 text-sm font-medium text-primary">
+          <LuLoaderCircle aria-hidden className="size-4 animate-spin" />
+          {t("verifying")}
+        </p>
+      ) : (
+        <p className="text-sm font-medium text-primary">
+          {secondsLeft > 0 ? (
+            t("resendIn", { seconds: secondsLeft })
+          ) : (
+            <button type="button" onClick={resend} disabled={resending} className="hover:text-primary-hover disabled:opacity-70">
+              {resending ? t("resending") : t("resend")}
+            </button>
+          )}
+        </p>
+      )}
 
       <label className="flex cursor-not-allowed items-center gap-2 text-xs text-heading">
         <input type="checkbox" checked disabled className="size-3 accent-primary" />

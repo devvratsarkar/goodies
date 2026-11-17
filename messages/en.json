@@ -45,6 +45,7 @@
     "resendIn": "Resend OTP in {seconds}s",
     "resend": "Resend OTP",
     "resending": "Resending…",
+    "verifying": "Verifying…",
     "verifyFailed": "Could not verify the code. Try again.",
     "keepLoggedIn": "Keep me logged in on this device."
   },
