@@ -81,17 +81,21 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
     sheetRef.current?.focus();
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.stopPropagation();
-        setOpen(false);
-      }
+      if (event.key !== "Escape") return;
+      // A confirm dialog stacked on the sheet owns Escape until it closes.
+      if (document.querySelector("[data-app-modal]")) return;
+      event.stopPropagation();
+      setOpen(false);
     }
 
     // The sheet only covers the checkout panel. Clicks on the dark space beside that panel
-    // never reach the sheet overlay, so close from the document as well.
+    // never reach the sheet overlay, so close from the document as well. Clicks inside a
+    // confirm dialog (its close button or the dimmed area around it) must leave the sheet open.
     function onPointerDown(event: PointerEvent) {
       const target = event.target;
       if (!(target instanceof Node)) return;
+      const element = target instanceof Element ? target : target.parentElement;
+      if (element?.closest("[data-app-modal]")) return;
       if (sheetRef.current?.contains(target)) return;
       if (containerRef?.current?.contains(target)) return;
       setOpen(false);

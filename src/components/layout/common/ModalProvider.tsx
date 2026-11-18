@@ -129,7 +129,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     <ModalContext.Provider value={{ openModal, closeModal, isOpen, data: modal?.data }}>
       {children}
       {modal ? (
-        <div className="fixed inset-0 z-210 flex items-center justify-center p-4">
+        <div data-app-modal className="fixed inset-0 z-210 flex items-center justify-center p-4">
           <div
             className={`absolute inset-0 bg-black/40 overlay-blur transition-opacity duration-200 ease-out motion-reduce:transition-none ${shown ? "opacity-100" : "opacity-0"}`}
             onClick={closeModal}
