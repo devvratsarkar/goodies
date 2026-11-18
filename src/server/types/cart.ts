@@ -189,6 +189,8 @@ export interface Summary {
     item_count: number;
     out_of_stock_count?: number | null;
     stock_message?: string | null;
+    cart_error?: boolean | null;
+    error_message?: string | null;
     subtotal: number;
     tax_amount: number;
     shipping_charge: number;

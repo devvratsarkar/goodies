@@ -12,7 +12,7 @@ import { useModal } from "@/components/layout/common/ModalProvider";
 import { Link } from "@/i18n/navigation";
 import type { CartItem } from "@/server/types/cart";
 import { useGetCartQuery, useUpdateCartItemQuantityMutation } from "@/store/endpoints/cartApi";
-import { cartStockIssue } from "@/utils/cartStock";
+import { cartErrorIssue, cartStockIssue } from "@/utils/cartStock";
 import { formatAmount } from "@/utils/price";
 import { getProductRoutePath, getShopRoutePath } from "@/utils/routes";
 
@@ -41,7 +41,8 @@ export default function CartDrawer() {
   const symbol = cart?.summary?.currency_symbol ?? "";
   const estimatedTotal = cart?.summary?.subtotal ?? 0;
   const stock = cartStockIssue(cart?.summary);
-  const checkoutBlocked = stock.blocked;
+  const cartError = cartErrorIssue(cart?.summary);
+  const checkoutBlocked = stock.blocked || cartError.blocked;
 
   useEffect(() => {
     if (!open) return;
@@ -260,6 +261,12 @@ export default function CartDrawer() {
                   <p className="mt-4 flex items-center gap-2 rounded-xl border border-primary/20 bg-primary-soft px-3.5 py-2.5 text-sm font-medium leading-5 text-primary">
                     <LuTriangleAlert aria-hidden className="size-4 shrink-0" />
                     <span className="min-w-0 flex-1">{stock.message}</span>
+                  </p>
+                ) : null}
+                {cartError.message ? (
+                  <p className="mt-4 flex items-center gap-2 rounded-xl border border-primary/20 bg-primary-soft px-3.5 py-2.5 text-sm font-medium leading-5 text-primary">
+                    <LuTriangleAlert aria-hidden className="size-4 shrink-0" />
+                    <span className="min-w-0 flex-1">{cartError.message}</span>
                   </p>
                 ) : null}
                 <button

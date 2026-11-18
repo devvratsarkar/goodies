@@ -117,7 +117,7 @@ h3 {
   color: var(--secondary-heading);
 }
 
-button {
+button:not(:disabled) {
   cursor: pointer;
 }
 

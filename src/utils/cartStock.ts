@@ -8,3 +8,10 @@ export function cartStockIssue(summary?: Summary | null) {
 
   return { blocked, message: blocked ? stockMessage : "" };
 }
+
+export function cartErrorIssue(summary?: Summary | null) {
+  const blocked = summary?.cart_error === true;
+  const message = summary?.error_message?.trim() ?? "";
+
+  return { blocked, message: blocked ? message : "" };
+}

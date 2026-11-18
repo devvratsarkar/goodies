@@ -18,7 +18,7 @@ import { AddressEntity } from "@/server/types/address";
 import type { UserProfile } from "@/server/types/user";
 import { useAddAddressMutation, useGetAddressesQuery, useUpdateAddressMutation } from "@/store/endpoints/addressApi";
 import { useGetCartQuery } from "@/store/endpoints/cartApi";
-import { cartStockIssue } from "@/utils/cartStock";
+import { cartErrorIssue, cartStockIssue } from "@/utils/cartStock";
 import { useGetUserProfileQuery } from "@/store/endpoints/userApi";
 import { checkoutValidationSchema } from "@/validations";
 
@@ -182,6 +182,7 @@ export default function CheckoutAddress({
   const shippingKnown = Boolean(selectedId) && selectedId === serverSelectedId && !savingSelection && !cartFetching && fulfilledTimeStamp > stampAtPick.current;
   const shippingBlocked = shippingKnown && cart?.summary?.shipping_rate_available === false;
   const stockBlocked = cartStockIssue(cart?.summary).blocked;
+  const cartErrorBlocked = cartErrorIssue(cart?.summary).blocked;
   const mustBeDefault = addresses.length === 0 || (Boolean(editingAddress) && addresses.length === 1);
   const needsForm = !isLoading && (addresses.length === 0 || showForm);
   const formInitialValues = useMemo(() => valuesFromProfile(profile), [profile]);
@@ -316,7 +317,7 @@ export default function CheckoutAddress({
   }, [needsForm, isLoading, selectedId, serverSelectedId, fulfilledTimeStamp, updateAddress]);
 
   async function continueWithSelected() {
-    if (!selectedId || continuing || !shippingKnown || shippingBlocked || stockBlocked) return;
+    if (!selectedId || continuing || !shippingKnown || shippingBlocked || stockBlocked || cartErrorBlocked) return;
     setContinuing(true);
     try {
       onDone?.();
@@ -558,7 +559,7 @@ export default function CheckoutAddress({
         {shippingBlocked ? <CheckoutAlert message={fields("shippingUnavailable")} /> : null}
         <button
           type="button"
-          disabled={!selectedId || continuing || savingSelection || !shippingKnown || shippingBlocked || stockBlocked}
+          disabled={!selectedId || continuing || savingSelection || !shippingKnown || shippingBlocked || stockBlocked || cartErrorBlocked}
           onClick={continueWithSelected}
           className="inline-flex h-11 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-70"
         >
