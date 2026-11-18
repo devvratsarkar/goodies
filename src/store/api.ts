@@ -29,7 +29,9 @@ const baseQuery = async (args: any, api: any, extraOptions: any) => {
   const result = await rawBaseQuery(args, api, extraOptions);
   const method = typeof args === "string" ? "GET" : args.method || "GET";
   const url = typeof args === "string" ? args : args.url || "";
-  const toast = method === "POST" || method === "DELETE" || (method === "PUT" && String(url).endsWith("/cancel"));
+  const toast = method === "POST" || method === "DELETE" || (method === "PUT");
+  // console.log('toast', toast);
+  // console.log('method', method);
 
   if (!toast) return result;
 
