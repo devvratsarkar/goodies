@@ -8,7 +8,7 @@ import ImageComponent from "@/components/layout/common/ImageComponent";
 import { Link } from "@/i18n/navigation";
 import { type PaymentMethod } from "@/components/checkout/PaymentMethods";
 import { useCheckoutTotalsUpdating } from "@/components/checkout/useCheckoutTotalsUpdating";
-import { useApplyCouponMutation, useGetCartQuery, useRemoveCouponMutation } from "@/store/endpoints/cartApi";
+import { useApplyCouponMutation, useCartCount, useGetCartQuery, useRemoveCouponMutation } from "@/store/endpoints/cartApi";
 import { getProductRoutePath } from "@/utils/routes";
 import { formatAmount } from "@/utils/price";
 
@@ -26,6 +26,7 @@ type CartSummaryProps = {
 export default function CartSummary({ checkoutHref, showItems = false, paymentMethod, variant = "page" }: CartSummaryProps) {
   const t = useTranslations("CartPage");
   const { data: cart, isLoading } = useGetCartQuery(paymentMethod);
+  const cartCount = useCartCount();
   const totalsUpdating = useCheckoutTotalsUpdating(paymentMethod);
   const [applyCoupon, { isLoading: isApplyingCoupon }] = useApplyCouponMutation();
   const [removeCoupon, { isLoading: isRemovingCoupon }] = useRemoveCouponMutation();
@@ -50,7 +51,6 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
     }
   };
 
-  const itemCount = cartSummary?.item_count ?? 0;
   const subtotal = cartSummary?.subtotal ?? 0;
   const couponCode = cartSummary?.coupon_code ?? null;
   const discountAmount = cartSummary?.discount_amount ?? 0;
@@ -141,7 +141,7 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
             <div className="flex items-center justify-between gap-3">
               <dt className="text-muted">
                 {t("subtotal")}
-                {itemCount > 0 ? <span className="ms-1 text-xs">({t("itemCount", { count: itemCount })})</span> : null}
+                {cartCount > 0 ? <span className="ms-1 text-xs">({t("itemCount", { count: cartCount })})</span> : null}
               </dt>
               <dd className="font-semibold tabular-nums text-heading">{formatAmount(subtotal, currencySymbol)}</dd>
             </div>

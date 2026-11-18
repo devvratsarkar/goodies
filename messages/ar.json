@@ -63,6 +63,7 @@
   },
   "OrderSummary": {
     "title": "ملخص الطلب ({count, plural, one {# منتج} other {# منتجات}})",
+    "quantity": "إجمالي الكمية: {count}",
     "offerApplied": "🎉 تم تطبيق {offer}! وفّرت {amount}!",
     "close": "إغلاق ملخص الطلب"
   },

@@ -63,6 +63,7 @@
   },
   "OrderSummary": {
     "title": "Order summary ({count, plural, one {# Item} other {# Items}})",
+    "quantity": "Total quantity: {count}",
     "offerApplied": "🎉 {offer} Offer Applied! You save {amount}!",
     "close": "Close order summary"
   },

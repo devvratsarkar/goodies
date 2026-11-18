@@ -7,7 +7,7 @@ import { LuChevronRight, LuTriangleAlert, LuX } from "react-icons/lu";
 import CartCoupons from "@/components/cart/CartCoupons";
 import CartDetails from "@/components/cart/CartDetails";
 import { type PaymentMethod } from "@/components/checkout/PaymentMethods";
-import { useApplyCouponMutation, useGetCartQuery } from "@/store/endpoints/cartApi";
+import { useApplyCouponMutation, useCartCount, useGetCartQuery } from "@/store/endpoints/cartApi";
 import { cartStockIssue } from "@/utils/cartStock";
 import { formatAmount } from "@/utils/price";
 
@@ -34,6 +34,7 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
   const sheetRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const { data: cart, isLoading } = useGetCartQuery(paymentMethod);
+  const cartCount = useCartCount();
   const [applyCoupon, { isLoading: isApplyingCoupon }] = useApplyCouponMutation();
 
   const items = cart?.items ?? [];
@@ -101,8 +102,13 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
           className="w-full rounded-xl bg-white px-3.5 py-3 text-start transition-colors hover:bg-surface-muted/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
         >
           <span className="flex items-center justify-between gap-3">
-            <span className="text-sm font-bold text-heading">
-              {isLoading ? cartText("loading") : t("title", { count: itemCount })}
+            <span className="min-w-0">
+              <span className="block text-sm font-bold text-heading">
+                {isLoading ? cartText("loading") : t("title", { count: itemCount })}
+              </span>
+              {!isLoading && cartCount > 0 ? (
+                <span className="mt-0.5 block text-xs font-medium text-muted">{t("quantity", { count: cartCount })}</span>
+              ) : null}
             </span>
             <span className="inline-flex items-center gap-1.5 text-sm tabular-nums text-heading">
               {hasDiscount ? <span className="text-muted line-through">{formatAmount(subtotal, symbol)}</span> : null}
@@ -159,6 +165,7 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
                 >
                   <h2 id={titleId} className="order-summary-sheet-header shrink-0 pb-4 text-base font-bold tracking-tight text-heading">
                     {t("title", { count: itemCount })}
+                    {cartCount > 0 ? <span className="mt-1 block text-xs font-medium text-muted">{t("quantity", { count: cartCount })}</span> : null}
                   </h2>
                   <CartDetails variant="sheet" paymentMethod={paymentMethod} />
                 </div>

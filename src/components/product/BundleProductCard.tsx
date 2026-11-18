@@ -87,7 +87,7 @@ export default function BundleProductCard({ bundleItem, quantity, canAddMore, ma
               </button>
             </div>
           ) : (
-            <p className="flex h-9 items-center justify-center rounded-full bg-surface text-xs font-semibold text-muted">{t("outOfStock")}</p>
+            <p className="flex h-9 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">{t("outOfStock")}</p>
           )}
           {inStock && stockReached ? (
             <p aria-live="polite" className="mt-1.5 text-center text-xs font-medium text-primary">
