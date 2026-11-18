@@ -87,9 +87,23 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
       }
     }
 
+    // The sheet only covers the checkout panel. Clicks on the dark space beside that panel
+    // never reach the sheet overlay, so close from the document as well.
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (sheetRef.current?.contains(target)) return;
+      if (containerRef?.current?.contains(target)) return;
+      setOpen(false);
+    }
+
     document.addEventListener("keydown", onKeyDown, true);
-    return () => document.removeEventListener("keydown", onKeyDown, true);
-  }, [open]);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, [open, containerRef]);
 
   return (
     <>
@@ -152,7 +166,7 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
 
       {open && containerRef?.current
         ? createPortal(
-            <div className="absolute inset-0 z-30 flex items-end justify-center">
+            <div className="absolute inset-0 z-30 flex items-end justify-center" onClick={() => setOpen(false)}>
               <div className="absolute inset-0 bg-black/55" />
               <div className="relative z-10 flex w-full max-w-xl flex-col items-center px-0 sm:px-4">
                 <button
@@ -169,6 +183,7 @@ export default function OrderSummary({ paymentMethod, onCouponApplied, container
                   aria-modal="true"
                   aria-labelledby={titleId}
                   tabIndex={-1}
+                  onClick={(event) => event.stopPropagation()}
                   className="order-summary-sheet flex max-h-[min(78vh,40rem)] w-full flex-col overflow-hidden rounded-t-3xl bg-background px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-5 shadow-lg outline-none sm:px-5"
                 >
                   <h2 id={titleId} className="order-summary-sheet-header shrink-0 pb-4 text-base font-bold tracking-tight text-heading">
