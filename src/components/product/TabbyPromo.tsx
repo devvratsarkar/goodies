@@ -7,10 +7,11 @@ import { formatAmount } from "@/utils/price";
 
 type TabbyPromoProps = {
   price: number;
+  currency: string;
   currencySymbol: string;
 };
 
-export default function TabbyPromo({ price, currencySymbol }: TabbyPromoProps) {
+export default function TabbyPromo({ price, currency, currencySymbol }: TabbyPromoProps) {
   const t = useTranslations("ProductPage");
   const { openModal } = useModal();
 
@@ -18,7 +19,7 @@ export default function TabbyPromo({ price, currencySymbol }: TabbyPromoProps) {
     openModal({
       title: t("tabbyModalTitle"),
       size: "md",
-      content: <TabbyInstallmentFrame price={price} currency="AED" title={t("tabbyModalTitle")} />,
+      content: <TabbyInstallmentFrame price={price} currency={currency} title={t("tabbyModalTitle")} />,
     });
   }
 

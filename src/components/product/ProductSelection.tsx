@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import ProductPurchase from "@/components/product/ProductPurchase";
 import ProductTabs from "@/components/product/ProductTabs";
 import { BundleItemsEntity, ReviewsEntity, SizesEntity, Variant, VariantsEntity } from "@/server/types/singleProduct";
+import type { CurrencyCode } from "@/utils/currency";
 
 type ProductSelectionProps = {
   notice?: string;
@@ -18,6 +19,7 @@ type ProductSelectionProps = {
   variant: Variant;
   variants: VariantsEntity[];
   sizes: SizesEntity[];
+  currency: CurrencyCode;
   currencySymbol: string;
   weight: number;
   isBundle: boolean;
@@ -45,6 +47,7 @@ export default function ProductSelection({
   variant,
   variants,
   sizes,
+  currency,
   currencySymbol,
   weight,
   isBundle,
@@ -110,6 +113,7 @@ export default function ProductSelection({
             variant={variant}
             variants={variants}
             sizes={sizes}
+            currency={currency}
             currencySymbol={currencySymbol}
             sizeName={sizeName}
             onSizeChange={selectSize}

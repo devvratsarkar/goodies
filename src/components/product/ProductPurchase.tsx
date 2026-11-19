@@ -6,6 +6,7 @@ import { LuInfo } from "react-icons/lu";
 import PurchaseActions from "@/components/product/PurchaseActions";
 import WishlistButton from "@/components/wishlist/WishlistButton";
 import { BundleItemsEntity, SizesEntity, Variant, VariantsEntity } from "@/server/types/singleProduct";
+import { offersTabby, offersTamara, type CurrencyCode } from "@/utils/currency";
 import { formatAmount } from "@/utils/price";
 import BundleProductCard from "./BundleProductCard";
 import TabbyPromo from "./TabbyPromo";
@@ -18,6 +19,7 @@ type ProductPurchaseProps = {
   isVariant: boolean;
   variant: Variant;
   variants: VariantsEntity[];
+  currency: CurrencyCode;
   currencySymbol: string;
   sizes: SizesEntity[];
   sizeName: string | null;
@@ -42,7 +44,7 @@ function availableQuantity(stockManage: boolean, stock: number) {
   return stockManage ? stock : Infinity;
 }
 
-export default function ProductPurchase({ notice = "", name, isVariant, variant, variants, sizes, currencySymbol, sizeName, onSizeChange, productId, isBundle, bundleItems, maxSelection, maxProductQuantity, bundleStock, stockManage, stockStatus, picked, onPickedChange }: ProductPurchaseProps) {
+export default function ProductPurchase({ notice = "", name, isVariant, variant, variants, sizes, currency, currencySymbol, sizeName, onSizeChange, productId, isBundle, bundleItems, maxSelection, maxProductQuantity, bundleStock, stockManage, stockStatus, picked, onPickedChange }: ProductPurchaseProps) {
   const t = useTranslations("ProductPage");
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -103,6 +105,8 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
     ? { product_id: productId, quantity, bundle_selections: bundleSelections }
     : { product_id: productId, quantity, variant_sku: selectedVariant?.sku ?? "" };
   const addDisabled = needsSize || outOfStock || (isBundle && !boxReady);
+  const showTabby = offersTabby(currency);
+  const showTamara = offersTamara(currency);
 
 
   const wishlistPayload = {
@@ -254,10 +258,12 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
         ) : null}
       </div>
 
-      <div className="mt-4 space-y-3">
-        <TabbyPromo price={price * quantity} currencySymbol={currencySymbol} />
-        <TamaraPromo price={price * quantity} />
-      </div>
+      {showTabby || showTamara ? (
+        <div className="mt-4 space-y-3">
+          {showTabby ? <TabbyPromo price={price * quantity} currency={currency} currencySymbol={currencySymbol} /> : null}
+          {showTamara ? <TamaraPromo price={price * quantity} /> : null}
+        </div>
+      ) : null}
 
       {notice ? (
         <p className="mt-4 flex items-center gap-2.5 rounded-lg bg-primary-soft px-4 py-3 text-sm leading-5 text-heading" role="note">

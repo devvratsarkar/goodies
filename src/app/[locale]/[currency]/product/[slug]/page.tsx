@@ -118,6 +118,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         variant={variant}
         variants={variants}
         sizes={sizes}
+        currency={country}
         currencySymbol={product.pricing_context?.currency_symbol ?? ""}
         weight={product.weight}
         productId={product._id}
