@@ -4,7 +4,7 @@ import ShopCatalog from "@/components/product/ShopCatalog";
 import { getHomeRoutePath, getShopRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
 import { getAllProducts } from "@/server";
-import { toCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { HomeProduct } from "@/server/types/Home";
 
 export const revalidate = 600;
@@ -23,13 +23,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function ShopPage({
-  params,
-}: {
-  params: Promise<{ locale: string; currency: string }>;
-}) {
-  const { currency } = await params;
-  const country = toCurrency(currency);
+export default async function ShopPage() {
+  const country = await getRequestCurrency();
   const t = await getTranslations("ShopPage");
   const nav = await getTranslations("Nav");
   const allProductsData = await getAllProducts(country);
@@ -51,7 +46,7 @@ export default async function ShopPage({
       totalProducts={totalProducts}
       minPrice={allProductsData.lowest_price ?? 0}
       maxPrice={allProductsData.highest_price ?? 0}
-      currencySymbol={allProductsData.pricing_context?.currency_symbol || "د.إ"}
+      currencySymbol={allProductsData.pricing_context?.currency_symbol ?? ""}
       currency={country}
     />
   );

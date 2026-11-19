@@ -6,7 +6,7 @@ import BlogPagination from "@/components/blog/BlogPagination";
 import BlogSidebar from "@/components/blog/BlogSidebar";
 import Breadcrumbs from "@/components/layout/common/Breadcrumbs";
 import { getArticles } from "@/server";
-import { toCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { getBlogsRoutePath, getHomeRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
 
@@ -30,16 +30,16 @@ export default async function BlogsPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ locale: string; currency: string }>;
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ page?: string; search?: string }>;
 }) {
-  const { locale, currency } = await params;
+  const { locale } = await params;
   const query = await searchParams;
   const page = Math.max(1, Number(query.page) || 1);
   const search = query.search?.trim() || "";
   const t = await getTranslations("BlogsPage");
   const nav = await getTranslations("Nav");
-  const country = toCurrency(currency);
+  const country = await getRequestCurrency();
   const data = await getArticles(country, page, search);
   const articles = data?.articles ?? [];
   const totalPages = data?.totalPages || 1;

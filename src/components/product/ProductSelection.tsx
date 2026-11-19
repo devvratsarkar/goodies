@@ -18,6 +18,7 @@ type ProductSelectionProps = {
   variant: Variant;
   variants: VariantsEntity[];
   sizes: SizesEntity[];
+  currency: string;
   currencySymbol: string;
   weight: number;
   isBundle: boolean;
@@ -45,6 +46,7 @@ export default function ProductSelection({
   variant,
   variants,
   sizes,
+  currency,
   currencySymbol,
   weight,
   isBundle,
@@ -110,6 +112,7 @@ export default function ProductSelection({
             variant={variant}
             variants={variants}
             sizes={sizes}
+            currency={currency}
             currencySymbol={currencySymbol}
             sizeName={sizeName}
             onSizeChange={selectSize}

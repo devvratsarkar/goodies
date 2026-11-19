@@ -6,35 +6,37 @@ import { countryCookie, currencies, toCurrency } from "./utils/currency";
 const handleI18n = createMiddleware(routing);
 const currencyCodes: readonly string[] = currencies;
 
-function pathnameWithCurrency(pathname: string, currency: string) {
+function withoutCurrency(pathname: string) {
   const trailing = pathname.length > 1 && pathname.endsWith("/");
   const parts = pathname.split("/").filter(Boolean);
-  const hasLocale = routing.locales.includes(parts[0] as (typeof routing.locales)[number]);
-  if (!hasLocale) parts.unshift(routing.defaultLocale);
-  if (currencyCodes.includes(parts[1] ?? "")) parts[1] = currency;
-  else parts.splice(1, 0, currency);
-  const next = `/${parts.join("/")}`;
-  return trailing ? `${next}/` : next;
+  const currencyAt = routing.locales.includes(parts[0] as (typeof routing.locales)[number]) ? 1 : 0;
+  const code = parts[currencyAt];
+  if (!code || !currencyCodes.includes(code)) return null;
+  parts.splice(currencyAt, 1);
+  if (parts[0] === routing.defaultLocale) parts.shift();
+  const next = parts.length ? `/${parts.join("/")}` : "/";
+  return {
+    pathname: trailing && next !== "/" ? `${next}/` : next,
+    currency: toCurrency(code),
+  };
 }
 
 export default function proxy(request: NextRequest) {
-  const response = handleI18n(request);
-  if (response.status >= 300 && response.status < 400) return response;
+  const currencyPath = withoutCurrency(request.nextUrl.pathname);
+  if (currencyPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = currencyPath.pathname;
+    const response = NextResponse.redirect(url, 307);
+    response.cookies.set(countryCookie, currencyPath.currency, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+      secure: url.protocol === "https:",
+    });
+    return response;
+  }
 
-  const currency = toCurrency(request.cookies.get(countryCookie)?.value);
-  const rewriteHeader = response.headers.get("x-middleware-rewrite");
-  const url = rewriteHeader ? new URL(rewriteHeader, request.url) : request.nextUrl.clone();
-  const nextPath = pathnameWithCurrency(url.pathname, currency);
-  if (nextPath === url.pathname) return response;
-
-  url.pathname = nextPath;
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("X-NEXT-INTL-LOCALE", url.pathname.split("/")[1] ?? routing.defaultLocale);
-  const rewritten = NextResponse.rewrite(url, { request: { headers: requestHeaders } });
-  for (const cookie of response.headers.getSetCookie()) rewritten.headers.append("set-cookie", cookie);
-  const link = response.headers.get("link");
-  if (link) rewritten.headers.set("link", link);
-  return rewritten;
+  return handleI18n(request);
 }
 
 export const config = {

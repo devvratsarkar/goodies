@@ -7,7 +7,8 @@ import BlogPagination from "@/components/blog/BlogPagination";
 import BlogSidebar from "@/components/blog/BlogSidebar";
 import Breadcrumbs from "@/components/layout/common/Breadcrumbs";
 import { getBlogCategories, getBlogCategory } from "@/server";
-import { defaultCurrency, toCurrency } from "@/utils/currency";
+import { defaultCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { markdownToHtml } from "@/utils/markdown";
 import { getBlogCategoryRoutePath, getBlogsRoutePath, getHomeRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
@@ -34,7 +35,7 @@ export async function generateStaticParams() {
 }
 
 type BlogCategoryPageProps = {
-  params: Promise<{ locale: string; currency: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
   searchParams: Promise<{ page?: string; search?: string }>;
 };
 
@@ -44,9 +45,9 @@ function metaText(value?: string | null) {
 }
 
 export async function generateMetadata({ params }: BlogCategoryPageProps): Promise<Metadata> {
-  const { locale, currency, slug } = await params;
+  const { locale, slug } = await params;
   const categorySlug = readSlug(slug);
-  const category = await getBlogCategory(toCurrency(currency), categorySlug);
+  const category = await getBlogCategory(await getRequestCurrency(), categorySlug);
   if (!category?.name) return {};
 
   const title = metaText(category.meta_title) ?? category.name;
@@ -74,12 +75,12 @@ export async function generateMetadata({ params }: BlogCategoryPageProps): Promi
 }
 
 export default async function BlogCategoryPage({ params, searchParams }: BlogCategoryPageProps) {
-  const { locale, currency, slug: rawSlug } = await params;
+  const { locale, slug: rawSlug } = await params;
   const categorySlug = readSlug(rawSlug);
   const query = await searchParams;
   const page = Math.max(1, Number(query.page) || 1);
   const search = query.search?.trim() || "";
-  const country = toCurrency(currency);
+  const country = await getRequestCurrency();
   const category = await getBlogCategory(country, categorySlug, page, search);
   if (!category?.slug || !category.name) notFound();
 

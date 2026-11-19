@@ -5,7 +5,7 @@ import CheckoutView from "@/components/checkout/CheckoutView";
 import PaymentReturn from "@/components/checkout/PaymentReturn";
 import Breadcrumbs from "@/components/layout/common/Breadcrumbs";
 import { getGlobalSettings, getPageNoticeSettings } from "@/server";
-import { toCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { getCartRoutePath, getCheckoutClassicRoutePath, getHomeRoutePath, getShopRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
 
@@ -53,19 +53,16 @@ export async function generateMetadata({
 }
 
 export default async function CheckoutClassicPage({
-  params,
   searchParams,
 }: {
-  params: Promise<{ currency: string }>;
   searchParams: Promise<CheckoutSearchParams>;
 }) {
-  const { currency } = await params;
   const t = await getTranslations("CheckoutClassicPage");
   const nav = await getTranslations("Nav");
   const cart = await getTranslations("CartPage");
   const query = await searchParams;
   const paymentStatus = query.tabby || query.ziina || query.tamara || query.cod;
-  const country = toCurrency(currency);
+  const country = await getRequestCurrency();
   const [notices, settings] = await Promise.all([getPageNoticeSettings(country), getGlobalSettings(country)]);
   const checkoutNotice = notices?.checkout_notice_enabled ? notices.checkout_notice?.trim() : "";
   const defaultPaymentMethod = settings?.default_payment_method?.trim().toLowerCase() || "ziina";

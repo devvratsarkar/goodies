@@ -7,11 +7,11 @@ import ProductSelection from "@/components/product/ProductSelection";
 import { getHomeRoutePath, getProductCategoryRoutePath, getProductRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
 import { getPageNoticeSettings, getProduct, getProducts } from "@/server";
-import { toCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { markdownToHtml } from "@/utils/markdown";
 
 type ProductPageProps = {
-  params: Promise<{ locale: string; currency: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 };
 
 // A slug added or renamed in admin was not in the build list, so allow it on demand.
@@ -38,9 +38,9 @@ function productCopy(value?: string | null) {
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const { locale, currency, slug } = await params;
+  const { locale, slug } = await params;
 
-  const product = await getProduct(toCurrency(currency), slug);
+  const product = await getProduct(await getRequestCurrency(), slug);
   const title = metaText(product.meta_title) ?? product.title;
   const description =
     metaText(product.meta_description) ??
@@ -70,8 +70,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { currency, slug } = await params;
-  const country = toCurrency(currency);
+  const { slug } = await params;
+  const country = await getRequestCurrency();
   const product = await getProduct(country, slug);
   const notices = await getPageNoticeSettings(country);
   const productNotice = notices?.product_notice_enabled ? notices.product_notice?.trim() ?? "" : "";
@@ -118,6 +118,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         variant={variant}
         variants={variants}
         sizes={sizes}
+        currency={product.pricing_context?.currency ?? country}
         currencySymbol={product.pricing_context?.currency_symbol ?? ""}
         weight={product.weight}
         productId={product._id}

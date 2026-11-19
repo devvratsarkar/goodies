@@ -3,7 +3,7 @@ import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { getGlobalSettings, getHomePage } from "@/server";
-import { defaultCurrency, toCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { pageAlternates } from "@/utils/seo";
 import BestSellerSection from "@/components/page-components/home/BestSellerSection";
 import CategorySection from "@/components/page-components/home/CategorySection";
@@ -23,7 +23,7 @@ export async function generateMetadata({
   if (!hasLocale(routing.locales, locale)) return {};
 
   const t = await getTranslations({ locale, namespace: "Metadata" });
-  const settings = await getGlobalSettings(defaultCurrency);
+  const settings = await getGlobalSettings(await getRequestCurrency());
   const title = settings?.meta_title?.trim() || settings?.platformName?.trim() || t("title");
   const description = settings?.meta_description?.trim() || t("description");
   const keywords = settings?.meta_keywords?.trim();
@@ -56,9 +56,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function Home({ params }: { params: Promise<{ currency: string }> }) {
-  const { currency } = await params;
-  const homePage = await getHomePage(toCurrency(currency));
+export default async function Home() {
+  const homePage = await getHomePage(await getRequestCurrency());
 
   return (
     <>

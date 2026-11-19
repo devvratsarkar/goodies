@@ -696,7 +696,7 @@
     "related": "Related products",
     "tabbyBefore": "As low as",
     "tabbyModalTitle": "Pay later with Tabby",
-    "tabbyAfter": "or 4 interest-free payments.",
+    "tabbyAfter": "4 interest-free payments.",
     "month": "month",
     "learnMore": "Learn more"
   },
@@ -747,7 +747,7 @@
     "free": "Free",
     "payTabby": "Pay later with Tabby",
     "learnMore": "Learn more",
-    "tabbyLearnMore": "As low as <price>{amount}/mo</price> or 4 interest-free payments",
+    "tabbyLearnMore": "4 interest-free payments",
     "tamaraLearnMore": "Split in 4 payments - No late fees",
     "viewOptions": "View options",
     "payTabbyNote": "Split your purchase into 4 interest-free payments. You will be redirected to Tabby to complete your order.",

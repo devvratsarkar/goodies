@@ -4,7 +4,8 @@ import ShopCatalog from "@/components/product/ShopCatalog";
 import FaqList from "@/components/layout/common/FaqList";
 import { getAllProducts, getCategories, getCategory } from "@/server";
 import { markdownToHtml } from "@/utils/markdown";
-import { defaultCurrency, toCurrency } from "@/utils/currency";
+import { defaultCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { getHomeRoutePath, getProductCategoryRoutePath, getShopRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
 import { HomeProduct } from "@/server/types/Home";
@@ -33,7 +34,7 @@ function readSlug(slug: string) {
 }
 
 type ProductCategoryPageProps = {
-  params: Promise<{ locale: string; currency: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 };
 
 function metaText(value?: string | null) {
@@ -42,9 +43,9 @@ function metaText(value?: string | null) {
 }
 
 export async function generateMetadata({ params }: ProductCategoryPageProps): Promise<Metadata> {
-  const { locale, currency, slug } = await params;
+  const { locale, slug } = await params;
   const categorySlug = readSlug(slug);
-  const data = await getCategory(toCurrency(currency), categorySlug);
+  const data = await getCategory(await getRequestCurrency(), categorySlug);
   const category = data?.category;
   if (!category) return {};
 
@@ -74,8 +75,8 @@ export async function generateMetadata({ params }: ProductCategoryPageProps): Pr
 }
 
 export default async function ProductCategoryPage({ params }: ProductCategoryPageProps) {
-  const { currency, slug: rawSlug } = await params;
-  const country = toCurrency(currency);
+  const { slug: rawSlug } = await params;
+  const country = await getRequestCurrency();
   const slug = readSlug(rawSlug);
   const data = await getCategory(country, slug);
   const category = data?.category;
@@ -108,7 +109,7 @@ export default async function ProductCategoryPage({ params }: ProductCategoryPag
         totalProducts={allProductsData.allproductcount}
         minPrice={allProductsData.lowest_price ?? 0}
         maxPrice={allProductsData.highest_price ?? 0}
-        currencySymbol={allProductsData.pricing_context?.currency_symbol || "د.إ"}
+        currencySymbol={allProductsData.pricing_context?.currency_symbol ?? ""}
         currency={country}
       />
       {category.description?.trim() ? (

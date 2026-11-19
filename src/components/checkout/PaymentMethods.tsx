@@ -44,8 +44,7 @@ export default function PaymentMethods({ value, onChange, variant = "default", p
   const methods = (["cod", "ziina", "tabby", "tamara"] as const).filter((method) => (method === "cod" ? Boolean(cod) : enabled[method]));
   const sheet = variant === "sheet";
   const price = cart?.summary?.total_amount ?? 0;
-  const currency = cart?.summary?.currency ?? "AED";
-  const monthly = formatAmount(Math.round((price / 4) * 100) / 100, cart?.summary?.currency_symbol ?? "");
+  const currency = cart?.summary?.currency ?? "";
 
   function openInstallments(event: MouseEvent<HTMLButtonElement>, method: "tabby" | "tamara") {
     event.preventDefault();
@@ -116,16 +115,7 @@ export default function PaymentMethods({ value, onChange, variant = "default", p
                       onClick={(event) => openInstallments(event, method)}
                       className="min-w-0 flex-1 text-start text-sm font-semibold text-primary hover:text-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
-                      {method === "tabby"
-                        ? t.rich("tabbyLearnMore", {
-                            amount: monthly,
-                            price: (chunks) => (
-                              <bdi dir="ltr" className="whitespace-nowrap">
-                                {chunks}
-                              </bdi>
-                            ),
-                          })
-                        : t("tamaraLearnMore")}
+                      {method === "tabby" ? t("tabbyLearnMore") : t("tamaraLearnMore")}
                     </button>
                     <button
                       type="button"

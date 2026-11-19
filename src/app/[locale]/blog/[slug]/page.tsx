@@ -5,7 +5,8 @@ import BlogSidebar from "@/components/blog/BlogSidebar";
 import Breadcrumbs from "@/components/layout/common/Breadcrumbs";
 import ImageComponent from "@/components/layout/common/ImageComponent";
 import { getArticle, getArticles, getLatestArticles } from "@/server";
-import { defaultCurrency, toCurrency } from "@/utils/currency";
+import { defaultCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { markdownToHtml } from "@/utils/markdown";
 import { getBlogCategoryRoutePath, getBlogRoutePath, getBlogsRoutePath, getHomeRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
@@ -38,13 +39,13 @@ function metaText(value?: string | null) {
 }
 
 type BlogPageProps = {
-  params: Promise<{ locale: string; currency: string; slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 };
 
 export async function generateMetadata({ params }: BlogPageProps): Promise<Metadata> {
-  const { locale, currency, slug } = await params;
+  const { locale, slug } = await params;
   const articleSlug = readSlug(slug);
-  const article = await getArticle(toCurrency(currency), articleSlug);
+  const article = await getArticle(await getRequestCurrency(), articleSlug);
   const title = metaText(article?.meta_title) ?? article?.title;
   const description = metaText(article?.meta_description) ?? metaText(article?.description);
   const image = metaText(article?.og_image) ?? metaText(article?.image) ?? "";
@@ -63,8 +64,8 @@ export async function generateMetadata({ params }: BlogPageProps): Promise<Metad
 }
 
 export default async function BlogPage({ params }: BlogPageProps) {
-  const { locale, currency, slug } = await params;
-  const country = toCurrency(currency);
+  const { locale, slug } = await params;
+  const country = await getRequestCurrency();
   const article = await getArticle(country, readSlug(slug));
   const t = await getTranslations("BlogsPage");
   const nav = await getTranslations("Nav");

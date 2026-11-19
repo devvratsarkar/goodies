@@ -3,14 +3,14 @@ import { getTranslations } from "next-intl/server";
 import Breadcrumbs from "@/components/layout/common/Breadcrumbs";
 import FaqList from "@/components/layout/common/FaqList";
 import { getFaqList } from "@/server";
-import { toCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { getFaqRoutePath, getHomeRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
 
 export const revalidate = 600;
 
 type FaqPageProps = {
-  params: Promise<{ locale: string; currency: string }>;
+  params: Promise<{ locale: string }>;
 };
 
 export async function generateMetadata({ params }: FaqPageProps): Promise<Metadata> {
@@ -23,11 +23,10 @@ export async function generateMetadata({ params }: FaqPageProps): Promise<Metada
   };
 }
 
-export default async function FaqPage({ params }: FaqPageProps) {
-  const { currency } = await params;
+export default async function FaqPage() {
   const t = await getTranslations("FaqPage");
   const nav = await getTranslations("Nav");
-  const faqs = await getFaqList(toCurrency(currency));
+  const faqs = await getFaqList(await getRequestCurrency());
   const items = faqs.flatMap((faq) => {
     const question = faq.question?.trim() || faq.name?.trim() || "";
     if (!question || faq.status === false) return [];

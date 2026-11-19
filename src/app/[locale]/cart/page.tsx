@@ -5,7 +5,7 @@ import CartDetails from "@/components/cart/CartDetails";
 import CartProducts from "@/components/cart/CartProducts";
 import Breadcrumbs from "@/components/layout/common/Breadcrumbs";
 import { getPageNoticeSettings } from "@/server";
-import { toCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { getCartRoutePath, getCheckoutClassicRoutePath, getHomeRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
 
@@ -23,11 +23,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function CartPage({ params }: { params: Promise<{ currency: string }> }) {
-  const { currency } = await params;
+export default async function CartPage() {
   const t = await getTranslations("CartPage");
   const nav = await getTranslations("Nav");
-  const notices = await getPageNoticeSettings(toCurrency(currency));
+  const notices = await getPageNoticeSettings(await getRequestCurrency());
   const cartNotice = notices?.cart_notice_enabled ? notices.cart_notice?.trim() : "";
 
   return (

@@ -18,6 +18,7 @@ type ProductPurchaseProps = {
   isVariant: boolean;
   variant: Variant;
   variants: VariantsEntity[];
+  currency: string;
   currencySymbol: string;
   sizes: SizesEntity[];
   sizeName: string | null;
@@ -42,7 +43,7 @@ function availableQuantity(stockManage: boolean, stock: number) {
   return stockManage ? stock : Infinity;
 }
 
-export default function ProductPurchase({ notice = "", name, isVariant, variant, variants, sizes, currencySymbol, sizeName, onSizeChange, productId, isBundle, bundleItems, maxSelection, maxProductQuantity, bundleStock, stockManage, stockStatus, picked, onPickedChange }: ProductPurchaseProps) {
+export default function ProductPurchase({ notice = "", name, isVariant, variant, variants, sizes, currency, currencySymbol, sizeName, onSizeChange, productId, isBundle, bundleItems, maxSelection, maxProductQuantity, bundleStock, stockManage, stockStatus, picked, onPickedChange }: ProductPurchaseProps) {
   const t = useTranslations("ProductPage");
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
@@ -255,7 +256,7 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
       </div>
 
       <div className="mt-4 space-y-3">
-        <TabbyPromo price={price * quantity} currencySymbol={currencySymbol} />
+        <TabbyPromo price={price * quantity} currency={currency} />
         <TamaraPromo price={price * quantity} />
       </div>
 

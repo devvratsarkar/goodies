@@ -696,7 +696,7 @@
     "related": "منتجات ذات صلة",
     "tabbyBefore": "يبدأ من",
     "tabbyModalTitle": "ادفع لاحقًا مع تابي",
-    "tabbyAfter": "أو 4 دفعات بدون فوائد.",
+    "tabbyAfter": "4 دفعات بدون فوائد.",
     "month": "شهر",
     "learnMore": "اعرف المزيد"
   },
@@ -747,7 +747,7 @@
     "free": "مجاني",
     "payTabby": "ادفع لاحقًا مع تابي",
     "learnMore": "اعرف المزيد",
-    "tabbyLearnMore": "ابتداءً من <price>{amount}/شهر</price> أو 4 دفعات بدون فوائد",
+    "tabbyLearnMore": "4 دفعات بدون فوائد",
     "tamaraLearnMore": "قسّم على 4 دفعات - بدون رسوم تأخير",
     "viewOptions": "عرض الخيارات",
     "payTabbyNote": "قسّم مشترياتك على 4 دفعات بدون فوائد. سيتم تحويلك إلى تابي لإتمام طلبك.",

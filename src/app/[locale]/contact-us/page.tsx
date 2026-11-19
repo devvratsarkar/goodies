@@ -4,12 +4,12 @@ import Breadcrumbs from "@/components/layout/common/Breadcrumbs";
 import ImageComponent from "@/components/layout/common/ImageComponent";
 import ContactForm from "@/components/page-components/contact/ContactForm";
 import { getGlobalSettings } from "@/server";
-import { toCurrency } from "@/utils/currency";
+import { getRequestCurrency } from "@/server/currency";
 import { getContactUsRoutePath, getHomeRoutePath } from "@/utils/routes";
 import { pageAlternates } from "@/utils/seo";
 
 type ContactUsPageProps = {
-  params: Promise<{ locale: string; currency: string }>;
+  params: Promise<{ locale: string }>;
 };
 
 export async function generateMetadata({ params }: ContactUsPageProps) {
@@ -22,12 +22,11 @@ export async function generateMetadata({ params }: ContactUsPageProps) {
   };
 }
 
-export default async function ContactUsPage({ params }: ContactUsPageProps) {
-  const { currency } = await params;
+export default async function ContactUsPage() {
   const t = await getTranslations("ContactUsPage");
   const nav = await getTranslations("Nav");
   const love = await getTranslations("MadeWithLoveSection");
-  const settings = await getGlobalSettings(toCurrency(currency));
+  const settings = await getGlobalSettings(await getRequestCurrency());
   const email = settings?.email?.trim() || "";
   const phone = settings?.phone?.trim() || "";
 
