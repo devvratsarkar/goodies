@@ -8,7 +8,9 @@ const rawBaseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
   prepareHeaders(headers) {
     if (!headers.has("Accept")) headers.set("Accept", "application/json");
-    headers.set("country", readCurrencyCookie());
+    const countryOverride = headers.get("x-country-override");
+    if (countryOverride) headers.delete("x-country-override");
+    headers.set("country", countryOverride || readCurrencyCookie());
 
     const token = Cookies.get("token");
     if (token) headers.set("Authorization", `Bearer ${token}`);

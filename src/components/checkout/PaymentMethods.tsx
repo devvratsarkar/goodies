@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, type MouseEvent } from "react";
+import type { MouseEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import CheckoutAlert from "@/components/checkout/CheckoutAlert";
 import { useModal } from "@/components/layout/common/ModalProvider";
 import { TabbyInstallmentFrame } from "@/components/product/TabbyInstallmentFrame";
 import { openTamaraProductPlans } from "@/components/product/TamaraPromo";
 import { useGetCartQuery } from "@/store/endpoints/cartApi";
-import { offersTabby, offersTamara, toCurrency } from "@/utils/currency";
+import { toCurrency } from "@/utils/currency";
 import { formatAmount } from "@/utils/price";
 
 export type PaymentMethod = "cod" | "tabby" | "ziina" | "tamara";
@@ -42,27 +43,14 @@ export default function PaymentMethods({ value, onChange, variant = "default", p
   const cartMethod = primaryMethod == null ? (value ?? undefined) : !value || value === primaryMethod ? undefined : value;
   const { data: cart } = useGetCartQuery(cartMethod);
   const cod = cart?.summary?.cod_status ? cart.cod_method : null;
-  const currencyRef = useRef<ReturnType<typeof toCurrency> | null>(null);
-  if (cart?.summary?.currency) currencyRef.current = toCurrency(cart.summary.currency);
-  const currency = currencyRef.current;
-  const methods = (["cod", "ziina", "tabby", "tamara"] as const).filter((method) => {
-    if (method === "cod") return Boolean(cod);
-    if (!enabled[method]) return false;
-    if (method === "ziina") return true;
-    if (!currency) return false;
-    if (method === "tabby") return offersTabby(currency);
-    return offersTamara(currency);
-  });
+  const methods = (["cod", "ziina", "tabby", "tamara"] as const).filter((method) => (method === "cod" ? Boolean(cod) : enabled[method]));
   const sheet = variant === "sheet";
   const price = cart?.summary?.total_amount ?? 0;
+  const currency = cart?.summary?.currency ?? "AED";
+  const cartCurrency = currency.trim().toUpperCase();
+  const currencyCode = toCurrency(cartCurrency);
+  const currencyNotice = cartCurrency === currencyCode && currencyCode !== "AED" ? currencyCode : null;
   const monthly = formatAmount(Math.round((price / 4) * 100) / 100, cart?.summary?.currency_symbol ?? "");
-
-  useEffect(() => {
-    if (!currency || !value || methods.includes(value)) return;
-    const primary = primaryMethod?.trim().toLowerCase();
-    const fallback = methods.find((method) => method === primary) ?? methods.find((method) => method === "ziina") ?? methods[0];
-    if (fallback) onChange(fallback);
-  }, [currency, value, methods, onChange, primaryMethod]);
 
   function openInstallments(event: MouseEvent<HTMLButtonElement>, method: "tabby" | "tamara") {
     event.preventDefault();
@@ -71,7 +59,7 @@ export default function PaymentMethods({ value, onChange, variant = "default", p
       openModal({
         title: t("payTabby"),
         size: "md",
-        content: <TabbyInstallmentFrame price={price} currency={currency ?? "AED"} title={t("payTabby")} />,
+        content: <TabbyInstallmentFrame price={price} currency={currencyCode ?? "AED"} title={t("payTabby")} />,
       });
       return;
     }
@@ -152,6 +140,9 @@ export default function PaymentMethods({ value, onChange, variant = "default", p
                       {t("viewOptions")}
                     </button>
                   </span>
+                ) : null}
+                {currencyNotice && (method === "tabby" || method === "tamara") ? (
+                  <CheckoutAlert className="mt-2" message={t("currencyNotice", { currency: currencyNotice })} />
                 ) : null}
               </span>
             </label>

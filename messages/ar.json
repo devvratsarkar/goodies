@@ -746,6 +746,7 @@
     "primaryMethod": "الأساسية",
     "free": "مجاني",
     "payTabby": "ادفع لاحقًا مع تابي",
+    "currencyNotice": "سيتم تسجيل دفعتك بعملة \"{currency}\" بالدرهم الإماراتي (AED).",
     "learnMore": "اعرف المزيد",
     "tabbyLearnMore": "ابتداءً من <price>{amount}/شهر</price> أو 4 دفعات بدون فوائد",
     "tamaraLearnMore": "قسّم على 4 دفعات - بدون رسوم تأخير",
