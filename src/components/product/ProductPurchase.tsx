@@ -51,7 +51,7 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
 
   const totalPicked = Object.values(picked).reduce((sum, qty) => sum + qty, 0);
   const canAddMore = totalPicked < maxSelection;
-  const boxReady = totalPicked > 0;
+  const boxReady = maxSelection > 0 && totalPicked === maxSelection;
 
   const selectedVariant = variants.find((item) => item?.size === sizeName);
   const allSizesSoldOut =
@@ -142,7 +142,7 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
             <div className="rounded-xl border border-border bg-surface p-3">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-heading">
-                  {t("bundleChoose", { count: maxSelection })}
+                  {boxReady ? t("bundleComplete") : t("bundleChoose", { count: maxSelection })}
                 </p>
                 <span
                   aria-live="polite"
@@ -152,11 +152,11 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
                 </span>
               </div>
               <p className="mt-1.5 text-xs text-muted">
-                {!boxReady
-                  ? t("bundleRemaining")
-                  : canAddMore
-                    ? t("bundleCanAddMore", { count: maxSelection - totalPicked })
-                    : t("bundleFull")}
+                {boxReady
+                  ? t("bundleFull")
+                  : totalPicked === 0
+                    ? t("bundleRemaining", { count: maxSelection })
+                    : t("bundleCanAddMore", { count: maxSelection - totalPicked })}
               </p>
             </div>
           </div>
