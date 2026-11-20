@@ -86,7 +86,7 @@ export function DesktopNav({ shopCategories }: { shopCategories: ShopCategory[] 
               onMouseLeave={() => setOpenKey(null)}
             >
               <div
-                className={`relative inline-flex items-center ${active || isOpen ? "text-primary" : "text-foreground"}`}
+                className={`relative inline-flex items-center text-sm xl:text-base ${active || isOpen ? "text-primary" : "text-foreground"}`}
               >
                 <Link
                   href={item.href}

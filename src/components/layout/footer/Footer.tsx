@@ -59,7 +59,7 @@ function socialLinks(contact: FooterContact): { key: SocialKey; href: string; ic
 const columnTitleClass =
   "text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-deep";
 const footerLinkClass =
-  "text-sm text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "text-sm wrap-break-word text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 const socialButtonClass =
   "flex size-10 items-center justify-center rounded-full bg-background text-primary shadow-[0_4px_12px_rgba(15,23,42,0.06)] ring-1 ring-border/70 transition-colors hover:bg-primary hover:text-primary-foreground hover:ring-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
@@ -202,7 +202,7 @@ function MobileFooter({ contact, description }: { contact: FooterContact; descri
           </Link>
           {/* <p className="mt-4 text-base font-semibold tracking-tight text-heading">{t("tagline")}</p> */}
           {description ? (
-            <p className="mt-1.5 max-w-xs text-[13px] leading-relaxed text-muted">{description}</p>
+            <p className="mt-1.5 max-w-xs wrap-break-word text-[13px] leading-relaxed text-muted">{description}</p>
           ) : null}
 
           {links.length > 0 ? (
@@ -273,10 +273,10 @@ export default function Footer({ logo, description, categories, contact, country
     <footer className="mt-auto border-t border-border/40 bg-linear-to-b from-primary-soft/40 via-background to-surface lg:from-primary-soft/80 lg:via-background lg:to-accent/10">
       <MobileFooter contact={contact} description={description} />
 
-      <div className="container hidden gap-10 py-10 sm:grid-cols-2 sm:py-12 lg:grid lg:gap-8 lg:py-14 xl:grid-cols-4">
+      <div className="container hidden gap-10 py-10 sm:grid-cols-2 sm:py-12 lg:grid lg:gap-8 lg:py-14 xl:grid-cols-4 *:min-w-0">
         <div>
           <BrandMark logo={logo} logoClassName="h-30! w-auto" />
-          <p className="mt-2 text-sm leading-relaxed text-foreground">{description}</p>
+          <p className="mt-2 wrap-anywhere text-sm leading-relaxed text-foreground">{description}</p>
           <SocialLinks contact={contact} />
         </div>
 
