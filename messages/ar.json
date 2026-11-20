@@ -522,6 +522,7 @@
     "name": "الاسم",
     "email": "البريد الإلكتروني",
     "phone": "الهاتف",
+    "searchCountry": "بحث",
     "defaultAddress": "العنوان الافتراضي",
     "noDefaultAddress": "لا يوجد عنوان افتراضي بعد.",
     "addAddress": "إضافة عنوان",

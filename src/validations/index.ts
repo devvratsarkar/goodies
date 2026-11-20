@@ -65,7 +65,7 @@ export const profileValidationSchema = Yup.object({
   firstName: requiredString("required", 40),
   lastName: requiredString("required", 40),
   email: emailString("required", "emailInvalid"),
-  phone: phoneString("required", "phoneInvalid"),
+  phone: Yup.string().trim().required("required").matches(/^\d{8,15}$/, "phoneInvalid"),
   ...locationFields,
 });
 

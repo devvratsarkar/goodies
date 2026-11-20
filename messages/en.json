@@ -522,6 +522,7 @@
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
+    "searchCountry": "Search",
     "defaultAddress": "Default address",
     "noDefaultAddress": "No default address yet.",
     "addAddress": "Add address",

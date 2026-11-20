@@ -29,7 +29,7 @@ export function useAccountIdentity() {
   const { token } = useAuth();
   const { data: profile } = useGetUserProfileQuery(undefined, { skip: !token });
   const name = `${profile?.name ?? ""} ${profile?.last_name ?? ""}`.trim();
-  const initials = `${profile?.name?.[0] ?? ""}${profile?.last_name?.[0] ?? ""}`.toUpperCase();
+  const initials = (`${profile?.name?.[0] ?? ""}${profile?.last_name?.[0] ?? ""}` || profile?.email?.[0] || "").toUpperCase();
   const photo = photoSrc(profile?.profile_pic);
 
   return { loggedIn: Boolean(token), name, initials, photo };
@@ -40,7 +40,7 @@ export function UserAccountMark({ className = "size-5.5" }: { className?: string
   const [failedSrc, setFailedSrc] = useState("");
   const showPhoto = Boolean(photo) && failedSrc !== photo;
 
-  if (!loggedIn || (!showPhoto && !initials)) {
+  if (!loggedIn) {
     return <LuUser aria-hidden className={className} />;
   }
 

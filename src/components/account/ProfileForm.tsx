@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { LuCamera, LuEye, LuEyeOff, LuX } from "react-icons/lu";
 import type { InferType } from "yup";
 import { ProfileAvatar } from "@/components/account/AccountProfileSummary";
+import PhoneField from "@/components/auth/PhoneField";
 import RegisterLocation from "@/components/auth/RegisterLocation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AccountProfileFormSkeleton } from "@/components/skeletons/AccountSkeletons";
@@ -18,6 +19,18 @@ import { useChangePasswordMutation, useDeleteUserAccountMutation, useGetUserProf
 import { getHomeRoutePath } from "@/utils/routes";
 import { showToast } from "@/utils/toast";
 import { changePasswordValidationSchema, profileValidationSchema } from "@/validations";
+
+function digits(value: string | null | undefined) {
+  return (value ?? "").replace(/\D/g, "");
+}
+
+function profilePhone(profile: UserProfile | null | undefined) {
+  const number = digits(profile?.phone_number);
+  const dial = digits(profile?.phone_country_code);
+  if (!number) return "";
+  if (dial && !number.startsWith(dial)) return `${dial}${number}`;
+  return number;
+}
 
 function locationFromProfile(profile: UserProfile | null | undefined) {
   const country =
@@ -60,6 +73,7 @@ export default function ProfileForm() {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [phoneCountryCode, setPhoneCountryCode] = useState(() => digits(profile?.phone_country_code));
 
   const location = locationFromProfile(profile);
   const profileForm = useFormik<ProfileValues>({
@@ -67,7 +81,7 @@ export default function ProfileForm() {
       firstName: profile?.name ?? "",
       lastName: profile?.last_name ?? "",
       email: profile?.email ?? "",
-      phone: profile?.phone_number ?? "",
+      phone: profilePhone(profile),
       country: location.country,
       state: location.state,
     },
@@ -83,6 +97,8 @@ export default function ProfileForm() {
       body.append("country_code", countryCode);
       body.append("state", State.getStatesOfCountry(countryCode).find((item) => item.isoCode === stateCode)?.name ?? "");
       body.append("state_code", stateCode);
+      body.append("phone_number", values.phone.trim());
+      body.append("phone_country_code", phoneCountryCode);
       if (photoFile.current) body.append("profile_pic", photoFile.current);
       else if (!photo) body.append("profile_pic", "");
 
@@ -123,6 +139,11 @@ export default function ProfileForm() {
     if (photoTouched.current) return;
     setPhoto(profile?.profile_pic ?? null);
   }, [profile?.profile_pic]);
+
+  useEffect(() => {
+    const dial = digits(profile?.phone_country_code);
+    if (dial) setPhoneCountryCode(dial);
+  }, [profile?.phone_country_code]);
 
   useEffect(() => {
     return () => {
@@ -256,16 +277,25 @@ export default function ProfileForm() {
           </label>
           <label className={labelClassName}>
             {t("phone")}
-            <input
-              name="phone"
-              type="tel"
-              autoComplete="tel"
-              dir="ltr"
-              value={profile?.phone_number ?? ""}
-              readOnly
-              aria-readonly="true"
-              className={`${fieldClassName} mt-1 cursor-default text-muted`}
+            <RequiredMark />
+            <PhoneField
+              value={profileForm.values.phone}
+              invalid={Boolean(profileError("phone"))}
+              describedBy={profileError("phone") ? "profile-phone-error" : undefined}
+              searchPlaceholder={t("searchCountry")}
+              onChange={(value, dialCode) => {
+                void profileForm.setFieldValue("phone", value);
+                setPhoneCountryCode(dialCode);
+              }}
+              onBlur={() => {
+                void profileForm.setFieldTouched("phone", true);
+              }}
             />
+            {profileError("phone") ? (
+              <p id="profile-phone-error" className="mt-1.5 text-xs font-normal text-primary">
+                {profileError("phone")}
+              </p>
+            ) : null}
           </label>
           <div className="sm:col-span-2">
             <RegisterLocation
