@@ -8,6 +8,7 @@ import { useCheckoutTotalsUpdating } from "@/components/checkout/useCheckoutTota
 import { usePlaceWhenSignedIn } from "@/components/checkout/usePlaceWhenSignedIn";
 import { PlacedOrder } from "@/server/types/order";
 import { usePlaceOrderMutation } from "@/store/endpoints/orderApi";
+import { readDeviceType } from "@/utils/deviceId";
 import { readOrigin } from "@/utils/origin";
 
 type CodCheckoutProps = {
@@ -41,6 +42,7 @@ export default function CodCheckout({ billingAddressId, shippingAddressId, count
         country,
         payment_status: "pending",
         origin: readOrigin(),
+        device_type: readDeviceType(),
       }).unwrap();
       onPlaced(order);
     } catch (error) {

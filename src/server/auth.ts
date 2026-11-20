@@ -33,6 +33,7 @@ export async function registerAccount(input: {
   state: string;
   stateCode: string;
   origin: string;
+  deviceType: string;
 }, deviceId?: string | null) {
   const form = new FormData();
   form.append("name", input.name);
@@ -46,6 +47,7 @@ export async function registerAccount(input: {
   form.append("state", input.state);
   form.append("state_code", input.stateCode);
   form.append("origin", input.origin);
+  form.append("device_type", input.deviceType);
 
   return post("/user/register", form, deviceId);
 }

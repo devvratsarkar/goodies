@@ -9,6 +9,7 @@ import { usePlaceWhenSignedIn } from "@/components/checkout/usePlaceWhenSignedIn
 import { usePathname } from "@/i18n/navigation";
 import { useCreateTabbySessionMutation } from "@/store/endpoints/paymentApi";
 import { rememberCheckoutReturn } from "@/utils/checkoutReturn";
+import { readDeviceType } from "@/utils/deviceId";
 import { readOrigin } from "@/utils/origin";
 
 type TabbyCheckoutProps = {
@@ -41,6 +42,7 @@ export default function TabbyCheckout({ billingAddressId, shippingAddressId, cou
         customer_note: "",
         country,
         origin: readOrigin(),
+        device_type: readDeviceType(),
       }).unwrap();
 
       if (session?.payment_url) {

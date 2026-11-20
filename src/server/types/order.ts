@@ -7,6 +7,7 @@ export interface PlaceOrderPayload {
     country: string;
     payment_status: "pending";
     origin: string;
+    device_type: string;
 }
 export interface PlaceOrderResponse {
     http_status_code: number;

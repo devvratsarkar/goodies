@@ -3,6 +3,7 @@ export interface TamaraCheckoutPayload {
   billing_address_id: string;
   customer_note: string;
   origin: string;
+  device_type: string;
 }
 
 export interface TamaraCheckoutResponse {

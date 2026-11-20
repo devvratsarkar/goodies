@@ -4,6 +4,7 @@ export interface TabbySessionPayload {
     customer_note: string;
     country: string;
     origin: string;
+    device_type: string;
 }
 export interface TabbySessionResponse {
     http_status_code: number;

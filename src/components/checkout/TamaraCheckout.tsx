@@ -9,6 +9,7 @@ import { usePlaceWhenSignedIn } from "@/components/checkout/usePlaceWhenSignedIn
 import { usePathname } from "@/i18n/navigation";
 import { useCreateTamaraCheckoutMutation } from "@/store/endpoints/paymentApi";
 import { rememberCheckoutReturn } from "@/utils/checkoutReturn";
+import { readDeviceType } from "@/utils/deviceId";
 import { readOrigin } from "@/utils/origin";
 
 type TamaraCheckoutProps = {
@@ -39,6 +40,7 @@ export default function TamaraCheckout({ billingAddressId, shippingAddressId, sh
         billing_address_id: billingAddressId,
         customer_note: "",
         origin: readOrigin(),
+        device_type: readDeviceType(),
       }).unwrap();
 
       const paymentUrl = session?.payment_url || session?.checkout_url || session?.redirect_url;

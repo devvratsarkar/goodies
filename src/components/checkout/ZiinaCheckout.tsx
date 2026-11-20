@@ -9,6 +9,7 @@ import { usePlaceWhenSignedIn } from "@/components/checkout/usePlaceWhenSignedIn
 import { usePathname } from "@/i18n/navigation";
 import { useCreateZiinaCheckoutMutation } from "@/store/endpoints/paymentApi";
 import { rememberCheckoutReturn } from "@/utils/checkoutReturn";
+import { readDeviceType } from "@/utils/deviceId";
 import { readOrigin } from "@/utils/origin";
 
 type ZiinaCheckoutProps = {
@@ -40,6 +41,7 @@ export default function ZiinaCheckout({ billingAddressId, shippingAddressId, shi
         billing_address_id: billingAddressId,
         customer_note: "",
         origin: readOrigin(),
+        device_type: readDeviceType(),
       }).unwrap();
 
       const paymentUrl = session?.payment_url || session?.redirect_url;
