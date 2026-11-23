@@ -6,7 +6,7 @@ const searchEngines = ["google", "bing", "yahoo", "duckduckgo", "baidu", "yandex
 const paymentGateways = ["ziina.com", "tabby.ai", "tamara.co"];
 
 const cookieOptions = {
-  expires: 180,
+  expires: 7,
   path: "/",
   sameSite: "Lax" as const,
   secure: typeof window !== "undefined" && window.location.protocol === "https:",
