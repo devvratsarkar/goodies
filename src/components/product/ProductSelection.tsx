@@ -24,8 +24,8 @@ type ProductSelectionProps = {
   weight: number;
   isBundle: boolean;
   bundleItems: BundleItemsEntity[];
-  maxSelection: number;
-  maxProductQuantity: number;
+  maxSelection: number | null;
+  maxProductQuantity: number | null;
   bundleStock: number;
   stockManage: boolean;
   stockStatus: "out_of_stock" | "in_stock";

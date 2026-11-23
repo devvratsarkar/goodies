@@ -27,8 +27,8 @@ type ProductPurchaseProps = {
   productId: string;
   isBundle: boolean;
   bundleItems: BundleItemsEntity[];
-  maxSelection: number;
-  maxProductQuantity: number;
+  maxSelection: number | null;
+  maxProductQuantity: number | null;
   bundleStock: number;
   stockManage: boolean;
   stockStatus: "out_of_stock" | "in_stock";
@@ -50,8 +50,11 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
   const [added, setAdded] = useState(false);
 
   const totalPicked = Object.values(picked).reduce((sum, qty) => sum + qty, 0);
-  const canAddMore = totalPicked < maxSelection;
-  const boxReady = maxSelection > 0 && totalPicked === maxSelection;
+  const selectionLimit = maxSelection != null && maxSelection > 0 ? maxSelection : null;
+  // A missing per-item cap follows the box size, so one item can fill the box.
+  const itemQuantityLimit = maxProductQuantity != null && maxProductQuantity > 0 ? maxProductQuantity : selectionLimit;
+  const canAddMore = selectionLimit == null || totalPicked < selectionLimit;
+  const boxReady = selectionLimit != null && totalPicked === selectionLimit;
 
   const selectedVariant = variants.find((item) => item?.size === sizeName);
   const allSizesSoldOut =
@@ -142,21 +145,21 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
             <div className="rounded-xl border border-border bg-surface p-3">
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-semibold text-heading">
-                  {boxReady ? t("bundleComplete") : t("bundleChoose", { count: maxSelection })}
+                  {boxReady ? t("bundleComplete") : t("bundleChoose", { count: selectionLimit ?? 0 })}
                 </p>
                 <span
                   aria-live="polite"
                   className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${boxReady ? "bg-primary text-primary-foreground" : "bg-primary-soft text-primary"}`}
                 >
-                  {t("bundleSelected", { selected: totalPicked, max: maxSelection })}
+                  {t("bundleSelected", { selected: totalPicked, max: selectionLimit ?? 0 })}
                 </span>
               </div>
               <p className="mt-1.5 text-xs text-muted">
                 {boxReady
                   ? t("bundleFull")
                   : totalPicked === 0
-                    ? t("bundleRemaining", { count: maxSelection })
-                    : t("bundleCanAddMore", { count: maxSelection - totalPicked })}
+                    ? t("bundleRemaining", { count: selectionLimit ?? 0 })
+                    : t("bundleCanAddMore", { count: (selectionLimit ?? 0) - totalPicked })}
               </p>
             </div>
           </div>
@@ -167,7 +170,7 @@ export default function ProductPurchase({ notice = "", name, isVariant, variant,
                 bundleItem={item}
                 quantity={picked[item.product_id._id] ?? 0}
                 canAddMore={canAddMore}
-                maxProductQuantity={maxProductQuantity}
+                maxProductQuantity={itemQuantityLimit}
                 currencySymbol={currencySymbol}
                 onChange={(qty) => onPickedChange({ ...picked, [item.product_id._id]: qty })}
               />

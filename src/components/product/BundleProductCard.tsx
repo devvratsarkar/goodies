@@ -12,7 +12,7 @@ interface BundleProductCardProps {
   bundleItem: BundleItemsEntity;
   quantity: number;
   canAddMore: boolean;
-  maxProductQuantity: number;
+  maxProductQuantity: number | null;
   currencySymbol: string;
   onChange: (quantity: number) => void;
 }
@@ -29,7 +29,7 @@ export default function BundleProductCard({ bundleItem, quantity, canAddMore, ma
   // Only a managed item is limited by its stock count.
   const stock = product.variant?.stock ?? product.stock;
   const stockReached = Boolean(stockManage) && quantity >= stock;
-  const productMaxReached = quantity >= maxProductQuantity;
+  const productMaxReached = maxProductQuantity != null && quantity >= maxProductQuantity;
   const canIncrease = canAddMore && !stockReached && !productMaxReached;
 
   return (
@@ -96,7 +96,7 @@ export default function BundleProductCard({ bundleItem, quantity, canAddMore, ma
           ) : null}
           {inStock && !stockReached && productMaxReached ? (
             <p aria-live="polite" className="mt-1.5 text-center text-xs font-medium text-primary">
-              {t("bundleProductLimit", { count: maxProductQuantity })}
+              {t("bundleProductLimit", { count: maxProductQuantity ?? 0 })}
             </p>
           ) : null}
         </div>

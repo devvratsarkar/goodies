@@ -34,8 +34,8 @@ export interface SingleProductData {
   short_description: string;
   url: string;
   bundle_items?: (BundleItemsEntity)[] | null;
-  max_selection: number;
-  max_product_quantity: number;
+  max_selection: number | null;
+  max_product_quantity: number | null;
   average_rating: number;
   total_reviews: number;
   reviews?: (ReviewsEntity)[] | null;
