@@ -4,6 +4,7 @@ import type { MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import { LuHeart } from "react-icons/lu";
 import { useAddToWishlistMutation, useGetWishlistQuery, useRemoveFromWishlistMutation } from "@/store/endpoints/wishlistApi";
+import { trackMetaEvent } from "@/utils/metaPixel";
 
 type WishlistButtonProps = {
   name?: string;
@@ -50,6 +51,11 @@ export default function WishlistButton({
         await removeFromWishlist(payload).unwrap();
       } else {
         await addToWishlist(payload).unwrap();
+        trackMetaEvent("AddToWishlist", {
+          content_type: "product",
+          content_ids: [payload.product_id],
+          content_name: name || undefined,
+        });
       }
     } catch (error) {
       console.error("wishlist update failed", error);

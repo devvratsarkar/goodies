@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { type PaymentMethod } from "@/components/checkout/PaymentMethods";
 import { useCheckoutTotalsUpdating } from "@/components/checkout/useCheckoutTotalsUpdating";
 import { useApplyCouponMutation, useCartCount, useGetCartQuery, useRemoveCouponMutation } from "@/store/endpoints/cartApi";
+import { metaParamsFromCart, trackMetaEvent } from "@/utils/metaPixel";
 import { getProductRoutePath } from "@/utils/routes";
 import { formatAmount } from "@/utils/price";
 
@@ -207,6 +208,7 @@ export default function CartSummary({ checkoutHref, showItems = false, paymentMe
         {checkoutHref && cartItems.length > 0 ? (
           <Link
             href={checkoutHref}
+            onClick={() => trackMetaEvent("InitiateCheckout", metaParamsFromCart(cart))}
             className="cart-summary-checkout mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
             {t("checkout")}

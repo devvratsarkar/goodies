@@ -13,6 +13,7 @@ import { Link } from "@/i18n/navigation";
 import type { CartItem } from "@/server/types/cart";
 import { useGetCartQuery, useUpdateCartItemQuantityMutation } from "@/store/endpoints/cartApi";
 import { cartErrorIssue, cartStockIssue } from "@/utils/cartStock";
+import { metaParamsFromCart, trackMetaEvent } from "@/utils/metaPixel";
 import { formatAmount } from "@/utils/price";
 import { getProductRoutePath, getShopRoutePath } from "@/utils/routes";
 
@@ -272,7 +273,10 @@ export default function CartDrawer() {
                 <button
                   type="button"
                   disabled={checkoutBlocked}
-                  onClick={openCheckout}
+                  onClick={() => {
+                    trackMetaEvent("InitiateCheckout", metaParamsFromCart(cart));
+                    openCheckout();
+                  }}
                   className="mt-4 inline-flex h-12 w-full items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {cartText("checkout")}

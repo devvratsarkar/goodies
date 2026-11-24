@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // import { useAuth } from "@/components/auth/AuthProvider";
 // import CheckoutAuth from "@/components/auth/CheckoutAuth";
 import CartSummary from "@/components/cart/CartSummary";
@@ -9,6 +9,7 @@ import PaymentReturn from "@/components/checkout/PaymentReturn";
 import { resolveDefaultPaymentMethod, type EnabledGateways, type PaymentMethod } from "@/components/checkout/PaymentMethods";
 import { PlacedOrder } from "@/server/types/order";
 import { useGetCartQuery } from "@/store/endpoints/cartApi";
+import { metaParamsFromCart, trackMetaEvent } from "@/utils/metaPixel";
 import { getCheckoutClassicRoutePath } from "@/utils/routes";
 
 function startingMethod(value: string | undefined, enabled: EnabledGateways): PaymentMethod {
@@ -23,6 +24,20 @@ export default function CheckoutView({ shopHref, defaultPaymentMethod, enabled }
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
   const { data: cart } = useGetCartQuery(paymentMethod);
   const shippingAvailable = cart?.summary?.shipping_rate_available !== false;
+  const checkoutTracked = useRef(false);
+  const paymentInfoTracked = useRef(false);
+
+  useEffect(() => {
+    if (!cart?.summary || checkoutTracked.current || placedOrder) return;
+    checkoutTracked.current = true;
+    trackMetaEvent("InitiateCheckout", metaParamsFromCart(cart));
+  }, [cart, placedOrder]);
+
+  useEffect(() => {
+    if (!cart?.summary || !paymentMethod || paymentInfoTracked.current || placedOrder) return;
+    paymentInfoTracked.current = true;
+    trackMetaEvent("AddPaymentInfo", metaParamsFromCart(cart));
+  }, [cart, paymentMethod, placedOrder]);
 
   // useEffect(() => {
   //   if (ready && !token) setShowAuth(true);

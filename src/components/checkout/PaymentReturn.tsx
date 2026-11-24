@@ -10,6 +10,7 @@ import { api } from "@/store/api";
 import { useDownloadOrderInvoiceMutation, useGetOrderDetailsQuery } from "@/store/endpoints/orderApi";
 import { useAppDispatch } from "@/store/hooks";
 import { armCheckoutReopen, isClassicCheckoutPath, readCheckoutReturn } from "@/utils/checkoutReturn";
+import { metaParamsFromOrderDetails, metaUserFromOrder, trackMetaEvent } from "@/utils/metaPixel";
 import { formatAmount } from "@/utils/price";
 import { getAccountOrderRoutePath, getProductRoutePath } from "@/utils/routes";
 
@@ -110,6 +111,23 @@ export default function PaymentReturn({ status, orderId, orderNumber, message, s
     if (!isSuccess) return;
     dispatch(api.util.invalidateTags(["Cart"]));
   }, [dispatch, isSuccess]);
+
+  useEffect(() => {
+    if (!isSuccess || !order) return;
+    const paid = order.payment_status?.toLowerCase() === "paid";
+    const isCod = order.payment_method === "cod";
+    if (!paid && !isCod) return;
+
+    const key = `meta_purchase_${order.order_id || order.order_number}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      // continue — still fire once this mount
+    }
+
+    trackMetaEvent("Purchase", metaParamsFromOrderDetails(order), metaUserFromOrder(order));
+  }, [isSuccess, order]);
 
   if (status === "pending") {
     return (

@@ -16,6 +16,7 @@ import { useModal } from "@/components/layout/common/ModalProvider";
 import { registerAccount } from "@/server/auth";
 import { getDeviceId, readDeviceType } from "@/utils/deviceId";
 import { readOrigin } from "@/utils/origin";
+import { trackMetaEvent } from "@/utils/metaPixel";
 import { registerValidationSchema } from "@/validations";
 
 type RegisterValues = InferType<typeof registerValidationSchema>;
@@ -83,6 +84,11 @@ export default function Register() {
           setError(result.message || t("failed"));
           return;
         }
+        trackMetaEvent(
+          "CompleteRegistration",
+          {},
+          { email: values.email.trim(), phone: `${phoneCountryCode}${values.phone.trim()}` },
+        );
         openOtp(values.email.trim(), "account");
       } catch (caught) {
         setError(caught instanceof Error && caught.message ? caught.message : t("failed"));

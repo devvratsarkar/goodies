@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import CheckoutAlert from "@/components/checkout/CheckoutAlert";
 import CodCheckout from "@/components/checkout/CodCheckout";
@@ -11,6 +11,7 @@ import ZiinaCheckout from "@/components/checkout/ZiinaCheckout";
 import { PlacedOrder } from "@/server/types/order";
 import { useGetAddressesQuery } from "@/store/endpoints/addressApi";
 import { useGetCartQuery } from "@/store/endpoints/cartApi";
+import { metaParamsFromCart, trackMetaEvent } from "@/utils/metaPixel";
 
 type CheckoutPaymentProps = {
   header?: ReactNode;
@@ -51,6 +52,13 @@ export default function CheckoutPayment({
   const country = selectedAddress?.country_code ?? "AE";
   const normalizedDefault = defaultPaymentMethod?.trim().toLowerCase() ?? null;
   const autoPlace = Boolean(paymentMethod && paymentMethod !== "cod" && paymentMethod !== normalizedDefault);
+  const paymentTracked = useRef(false);
+
+  useEffect(() => {
+    if (!paymentMethod || !cart?.summary || paymentTracked.current) return;
+    paymentTracked.current = true;
+    trackMetaEvent("AddPaymentInfo", metaParamsFromCart(cart));
+  }, [paymentMethod, cart]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">

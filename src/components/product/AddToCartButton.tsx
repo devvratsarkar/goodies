@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { LuLoaderCircle, LuShoppingBag, LuShoppingCart } from "react-icons/lu";
 import { useCartDrawer } from "@/components/cart/CartDrawerProvider";
 import { useAddToCartMutation, useGetCartQuery } from "@/store/endpoints/cartApi";
+import { metaParamsFromCart, trackMetaEvent } from "@/utils/metaPixel";
 
 type AddToCartButtonProps = {
   variant?: "card" | "product";
@@ -47,8 +48,32 @@ export default function AddToCartButton({
     try {
       const response = await addToCart(payload);
       if (!response.data) return;
-      if (isBuy) openCheckout();
-      else openCart();
+
+      const cart = response.data;
+      const line = (cart.items ?? []).find(
+        (item) =>
+          item.product_id?._id === payload.product_id &&
+          (item.variant_sku ?? "") === (payload.variant_sku ?? ""),
+      );
+      trackMetaEvent("AddToCart", {
+        value: line ? line.single_price * payload.quantity : cart.summary?.total_amount,
+        currency: cart.summary?.currency || line?.currency,
+        content_type: "product",
+        content_ids: [payload.product_id],
+        contents: [
+          {
+            id: payload.product_id,
+            quantity: payload.quantity,
+            item_price: line?.single_price,
+          },
+        ],
+        num_items: payload.quantity,
+      });
+
+      if (isBuy) {
+        trackMetaEvent("InitiateCheckout", metaParamsFromCart(cart));
+        openCheckout();
+      } else openCart();
     } catch (error) {
       console.error("Error adding to cart", error);
     }

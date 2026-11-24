@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { LuSearch } from "react-icons/lu";
 import { useRouter } from "@/i18n/navigation";
 import { useGetProductSearchQuery } from "@/store/endpoints/productsApi";
+import { trackMetaEvent } from "@/utils/metaPixel";
 import { SearchSuggestions } from "./SearchSuggestions";
 
 type SearchFieldProps = {
@@ -72,6 +73,7 @@ export function SearchField({
   }, [open]);
 
   function goToShop(value: string) {
+    trackMetaEvent("Search", { search_string: value });
     router.push(`/shop?search=${encodeURIComponent(value)}`);
     setOpen(false);
     onSubmitted?.();

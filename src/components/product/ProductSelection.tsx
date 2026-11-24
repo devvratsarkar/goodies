@@ -5,6 +5,7 @@ import ProductPurchase from "@/components/product/ProductPurchase";
 import ProductTabs from "@/components/product/ProductTabs";
 import { BundleItemsEntity, ReviewsEntity, SizesEntity, Variant, VariantsEntity } from "@/server/types/singleProduct";
 import type { CurrencyCode } from "@/utils/currency";
+import { trackMetaEvent } from "@/utils/metaPixel";
 
 type ProductSelectionProps = {
   notice?: string;
@@ -83,6 +84,19 @@ export default function ProductSelection({
   }
   const [picked, setPicked] = useState<Record<string, number>>({});
   const selectedVariant = variants.find((item) => item?.size === sizeName);
+
+  useEffect(() => {
+    const price = selectedVariant?.price ?? variant?.price;
+    trackMetaEvent("ViewContent", {
+      content_type: "product",
+      content_ids: [productId],
+      content_name: name,
+      value: typeof price === "number" ? price : undefined,
+      currency,
+    });
+    // Once per product page mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fire on entry only
+  }, [productId]);
   const bundleWeight = bundleItems.reduce((sum, item) => {
     const count = picked[item.product_id._id] ?? 0;
     const itemWeight = item.product_id.variant?.weight || item.product_id.weight || 0;

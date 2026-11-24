@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import type { InferType } from "yup";
 import { RequiredMark } from "@/components/form/RequiredMark";
 import { usePostContactMutation } from "@/store/endpoints/userApi";
+import { trackMetaEvent } from "@/utils/metaPixel";
 import { contactMessageMax, contactMessageMin, contactUsValidationSchema } from "@/validations";
 
 type ContactFormValues = InferType<typeof contactUsValidationSchema>;
@@ -40,6 +41,7 @@ export default function ContactForm() {
           message: values.message.trim(),
         }).unwrap();
         if (result?.success === false) return;
+        trackMetaEvent("Contact", {}, { email: values.email.trim(), phone: values.phone.trim() });
         helpers.resetForm();
       } catch {
         // The API layer already shows the error toast.
