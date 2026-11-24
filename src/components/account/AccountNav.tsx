@@ -88,6 +88,7 @@ export default function AccountNav({ name, photo, email, pending = false }: { na
   const pathname = usePathname();
   const { logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const [renderedPathname, setRenderedPathname] = useState(pathname);
   const closeRef = useRef<HTMLButtonElement>(null);
   const openRef = useRef<HTMLButtonElement>(null);
@@ -129,6 +130,11 @@ export default function AccountNav({ name, photo, email, pending = false }: { na
   }
 
   function signOut() {
+    setConfirmLogout(true);
+  }
+
+  function handleLogout() {
+    setConfirmLogout(false);
     setOpen(false);
     logout();
     router.push(getHomeRoutePath());
@@ -149,6 +155,57 @@ export default function AccountNav({ name, photo, email, pending = false }: { na
 
   return (
     <>
+      {confirmLogout && (
+        <div
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4 overlay-blur"
+          onClick={() => setConfirmLogout(false)}
+        >
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="logout-title"
+            aria-describedby="logout-description"
+            onClick={(event) => event.stopPropagation()}
+            className="w-full max-w-sm rounded-2xl border border-border bg-background p-6 shadow-2xl"
+          >
+            <div className="flex size-12 items-center justify-center rounded-full bg-primary-soft text-primary">
+              <LuLogOut aria-hidden className="size-6" />
+            </div>
+
+            <h2
+              id="logout-title"
+              className="mt-4 text-lg font-bold text-heading"
+            >
+              Confirm Logout
+            </h2>
+
+            <p
+              id="logout-description"
+              className="mt-2 text-sm leading-6 text-muted"
+            >
+              Are you sure you want to logout from your account?
+            </p>
+
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setConfirmLogout(false)}
+                className="inline-flex h-10 items-center justify-center rounded-full border border-border px-5 text-sm font-semibold text-heading transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                Yes, Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <button
         ref={openRef}
         type="button"

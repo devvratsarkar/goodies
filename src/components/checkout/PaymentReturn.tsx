@@ -288,7 +288,7 @@ export default function PaymentReturn({ status, orderId, orderNumber, message, s
                         )}
                         <p className="mt-1 text-xs text-muted">
                           {item.size ? `${item.size} · ` : ""}
-                          {cart("itemQty", { count: item.quantity ?? 0 })}
+                          {cart("itemQty", { count: item.quantity ?? 0 })} x  {formatAmount(item.unit_price ?? 0, item.currency_symbol || currency)}
                         </p>
                         {item.bogo_active && item.bogo_label ? <p className="mt-1 text-xs font-semibold text-primary">{item.bogo_label}</p> : null}
                       </div>
