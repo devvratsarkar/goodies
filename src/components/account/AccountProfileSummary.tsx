@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { LuX } from "react-icons/lu";
 import ImageComponent from "@/components/layout/common/ImageComponent";
 import { AccountDefaultAddressSkeleton, AccountGreetingSkeleton, AccountProfileCardSkeleton } from "@/components/skeletons/AccountSkeletons";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useOpenChangePassword } from "@/components/auth/ChangePasswordModal";
 import { useGetUserProfileQuery } from "@/store/endpoints/userApi";
 import { getAccountAddressRoutePath, getAccountProfileRoutePath } from "@/utils/routes";
 
@@ -20,6 +23,29 @@ export function AccountGreeting() {
   if (!profile && (isLoading || isUninitialized)) return <AccountGreetingSkeleton />;
 
   return <h1 className="text-2xl font-bold tracking-tight text-heading">{t("greeting", { name: profile?.name ?? "" })}</h1>;
+}
+
+export function ChangePasswordNotice() {
+  const t = useTranslations("AccountPage");
+  const { data: profile } = useAccountUser();
+  const openChangePassword = useOpenChangePassword();
+  const [hidden, setHidden] = useState(false);
+
+  if (hidden || profile?.is_pass_changed !== false) return null;
+
+  return (
+    <div className="mt-4 flex items-center gap-2 rounded-xl border border-primary bg-primary-soft px-4 py-2 text-sm">
+      <p className="flex-1">
+        {t("changePasswordNotice")}{" "}
+        <button type="button" onClick={openChangePassword} className="font-semibold text-primary">
+          {t("changePassword")}
+        </button>
+      </p>
+      <button type="button" onClick={() => setHidden(true)} aria-label="Close" className="size-8 shrink-0 rounded-full text-muted hover:bg-background">
+        <LuX className="mx-auto size-4" />
+      </button>
+    </div>
+  );
 }
 
 export function AccountProfileSummary() {

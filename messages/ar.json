@@ -493,6 +493,7 @@
     "changePhoto": "تغيير الصورة",
     "removePhoto": "إزالة الصورة",
     "photoTooLarge": "استخدم صورة JPG أو PNG أو WebP بحجم أقل من 2 ميغابايت.",
+    "changePasswordNotice": "يرجى تحديث كلمة المرور للحفاظ على أمان حسابك.",
     "changePassword": "تغيير كلمة المرور",
     "samplePassword": "كلمة مرور هذا الحساب النموذجي هي {password}.",
     "currentPassword": "كلمة المرور الحالية",

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { AccountDefaultAddress, AccountGreeting, AccountProfileSummary } from "@/components/account/AccountProfileSummary";
+import { AccountDefaultAddress, AccountGreeting, AccountProfileSummary, ChangePasswordNotice } from "@/components/account/AccountProfileSummary";
 import { PushNotificationCard } from "@/components/account/PushNotificationCard";
 import { AccountAddressCount } from "@/components/account/AccountAddresses";
 import { AccountCouponsCount } from "@/components/account/AccountCoupons";
@@ -53,6 +53,7 @@ export default async function MyAccountPage() {
       />
       <AccountGreeting />
       <p className="mt-1 text-sm text-muted">{t("description")}</p>
+      <ChangePasswordNotice />
 
       <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {stats.map((stat) => (

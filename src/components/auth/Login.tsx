@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import type { InferType } from "yup";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useOpenChangePassword } from "@/components/auth/ChangePasswordModal";
 import { RequiredMark } from "@/components/form/RequiredMark";
 import { useOpenForgot } from "@/components/auth/Forgot";
 import { useOpenOtp } from "@/components/auth/OTPScreen";
@@ -33,6 +34,7 @@ export default function Login() {
   const openRegister = useOpenRegister();
   const openForgot = useOpenForgot();
   const openOtp = useOpenOtp();
+  const openChangePassword = useOpenChangePassword();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const formik = useFormik<LoginValues>({
@@ -42,8 +44,8 @@ export default function Login() {
       setError("");
 
       try {
-        await login(values.email.trim(), values.password);
-        closeModal();
+        if (await login(values.email.trim(), values.password)) openChangePassword();
+        else closeModal();
       } catch (caught) {
         const message = caught instanceof Error && caught.message ? caught.message : t("failed");
         if (/verify your account/i.test(message)) {

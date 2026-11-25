@@ -30,6 +30,7 @@ export const userApi = api.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["User"],
     }),
     subscribe: build.mutation<{ success?: boolean; message?: string }, { email: string; country: string }>({
       query: ({ email, country }) => ({

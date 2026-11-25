@@ -493,6 +493,7 @@
     "changePhoto": "Change photo",
     "removePhoto": "Remove photo",
     "photoTooLarge": "Use a JPG, PNG, or WebP image under 2 MB.",
+    "changePasswordNotice": "Please update your password to keep your account secure.",
     "changePassword": "Change password",
     "samplePassword": "This sample account password is {password}.",
     "currentPassword": "Current password",

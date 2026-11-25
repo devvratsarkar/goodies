@@ -11,7 +11,7 @@ const cookieName = "token";
 type AuthContextValue = {
   token: string | null;
   ready: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<boolean>;
   startSession: (token: string) => void;
   logout: () => void;
 };
@@ -74,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     startSession(body.data.token);
+    return body.data.user?.is_pass_changed === false;
   }
 
   function logout() {

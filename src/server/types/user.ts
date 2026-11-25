@@ -15,6 +15,7 @@ export interface UserProfile {
     phone_number: string;
     device_id?: null;
     status: boolean;
+    is_pass_changed?: boolean;
     fcm_token?: null;
     deletedAt?: null;
     country: string;
