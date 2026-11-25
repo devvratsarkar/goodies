@@ -39,6 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     dispatch(api.util.resetApiState());
   }
 
+  useEffect(() => {
+    function onExpired() {
+      setToken(null);
+      refreshAccount();
+    }
+
+    window.addEventListener("goodies-auth-expired", onExpired);
+    return () => window.removeEventListener("goodies-auth-expired", onExpired);
+  }, [dispatch]);
+
   function startSession(nextToken: string) {
     Cookies.set(cookieName, nextToken, cookieOptions);
     setToken(nextToken);

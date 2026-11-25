@@ -29,6 +29,12 @@ type ApiBody = {
 
 const baseQuery = async (args: any, api: any, extraOptions: any) => {
   const result = await rawBaseQuery(args, api, extraOptions);
+
+  if (result.error?.status === 401 && Cookies.get("token")) {
+    Cookies.remove("token", { path: "/" });
+    window.dispatchEvent(new Event("goodies-auth-expired"));
+  }
+
   const method = typeof args === "string" ? "GET" : args.method || "GET";
   const url = typeof args === "string" ? args : args.url || "";
   const toast = method === "POST" || method === "DELETE" || (method === "PUT");
