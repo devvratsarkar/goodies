@@ -35,7 +35,7 @@ function normalize(path: string) {
 }
 
 function AccountIdentity({ name, photo, email, pending }: { name: string; photo: string; email: string; pending: boolean }) {
-  const initials = `${name[0] ?? ""}${name[1] ?? ""}`;
+  const initials = (`${name[0] ?? ""}` || email[0] || "").toUpperCase();
 
   if (pending) return <AccountNavIdentitySkeleton />;
 

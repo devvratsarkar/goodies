@@ -25,7 +25,7 @@ export function AccountGreeting() {
 export function AccountProfileSummary() {
   const t = useTranslations("AccountPage");
   const { data: profile, isLoading, isUninitialized } = useAccountUser();
-  const initials = `${profile?.name?.[0] ?? ""}${profile?.last_name?.[0] ?? ""}`;
+  const initials = (`${profile?.name?.[0] ?? ""}${profile?.last_name?.[0] ?? ""}` || profile?.email?.[0] || "").toUpperCase();
   const location = [profile?.state, profile?.country].filter(Boolean).join(", ");
 
   if (!profile && (isLoading || isUninitialized)) return <AccountProfileCardSkeleton />;

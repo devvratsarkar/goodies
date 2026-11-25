@@ -185,7 +185,7 @@ export default function ProfileForm() {
     });
   }
 
-  const initials = `${profileForm.values.firstName[0] ?? ""}${profileForm.values.lastName[0] ?? ""}`;
+  const initials = (`${profileForm.values.firstName[0] ?? ""}${profileForm.values.lastName[0] ?? ""}` || profile?.email?.[0] || "").toUpperCase();
   const profilePending = !profile && (isLoading || isUninitialized);
 
   return (
