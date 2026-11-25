@@ -5,6 +5,8 @@ import { useTranslations } from "next-intl";
 import ProductReview from "@/components/product/ProductReview";
 import type { ReviewsEntity } from "@/server/types/singleProduct";
 
+type TabId = "description" | "details" | "reviews";
+
 type ProductTabsProps = {
   description?: string;
   customNotes?: string;
@@ -17,20 +19,46 @@ type ProductTabsProps = {
   totalReviews: number;
 };
 
-export default function ProductTabs({ description = "", customNotes = "", productId, name, weight, size, reviews, averageRating, totalReviews }: ProductTabsProps) {
+export default function ProductTabs({
+  description = "",
+  customNotes = "",
+  productId,
+  name,
+  weight,
+  size,
+  reviews,
+  averageRating,
+  totalReviews,
+}: ProductTabsProps) {
   const t = useTranslations("ProductPage");
-  const [tab, setTab] = useState<"details" | "reviews">("details");
+  const hasDescription = Boolean(description.trim());
+  const [tab, setTab] = useState<TabId>(hasDescription ? "description" : "details");
 
   const tabClass = (selected: boolean) =>
-    `-mt-px border-t-[3px] py-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${selected
-      ? "rounded-b-md border-primary bg-accent px-5 font-bold text-white"
-      : "border-transparent px-1 font-semibold text-[#333333]"
+    `-mt-px border-t-[3px] py-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+      selected
+        ? "rounded-b-md border-primary bg-accent px-5 font-bold text-white"
+        : "border-transparent px-1 font-semibold text-[#333333]"
     }`;
 
   return (
     <div className="mt-10">
       <div className="border-t border-border">
         <div role="tablist" aria-label={t("productDetails")} className="flex flex-wrap items-start gap-x-6">
+          {hasDescription ? (
+            <button
+              type="button"
+              role="tab"
+              id="tab-description"
+              aria-selected={tab === "description"}
+              aria-controls="panel-description"
+              tabIndex={tab === "description" ? 0 : -1}
+              onClick={() => setTab("description")}
+              className={tabClass(tab === "description")}
+            >
+              {t("description")}
+            </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -58,6 +86,18 @@ export default function ProductTabs({ description = "", customNotes = "", produc
         </div>
       </div>
 
+      {hasDescription ? (
+        <div
+          role="tabpanel"
+          id="panel-description"
+          aria-labelledby="tab-description"
+          hidden={tab !== "description"}
+          className="pt-4"
+        >
+          <div className="category-description" dangerouslySetInnerHTML={{ __html: description }} />
+        </div>
+      ) : null}
+
       <div
         role="tabpanel"
         id="panel-details"
@@ -65,7 +105,6 @@ export default function ProductTabs({ description = "", customNotes = "", produc
         hidden={tab !== "details"}
         className="pt-4"
       >
-        {description ? <div className="category-description mb-4" dangerouslySetInnerHTML={{ __html: description }} /> : null}
         <table className="w-full border-collapse text-sm" aria-label={t("productDetails")}>
           <tbody>
             <tr>
@@ -76,7 +115,7 @@ export default function ProductTabs({ description = "", customNotes = "", produc
                 {t("weight")}
               </th>
               <td className="border border-border px-4 py-3 text-foreground">
-                {weight && weight > 0 ? `${Math.round(weight * 1000) / 1000} kg` : '-'}
+                {weight && weight > 0 ? `${Math.round(weight * 1000) / 1000} kg` : "-"}
               </td>
             </tr>
             {size ? (
