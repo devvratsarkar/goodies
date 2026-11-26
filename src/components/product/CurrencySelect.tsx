@@ -126,6 +126,10 @@ export default function CurrencySelect({
     writeCurrencyCookie(code);
     dispatch(api.util.resetApiState());
     setIsUpdating(true);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("min_price");
+    url.searchParams.delete("max_price");
+    window.history.replaceState(null, "", url.toString());
     router.refresh();
   }
 
