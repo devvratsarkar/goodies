@@ -145,7 +145,7 @@ export function SearchField({
         aria-controls={listId}
         aria-autocomplete="list"
         aria-activedescendant={activeIndex >= 0 ? `${listId}-option-${activeIndex}` : undefined}
-        className="h-11 w-full rounded-full border border-border/70 bg-surface ps-12 pe-4 text-sm text-foreground shadow-xs outline-none transition placeholder:text-muted hover:border-border focus:border-primary focus:bg-background focus:ring-4 focus:ring-primary-soft [&::-webkit-search-cancel-button]:appearance-none"
+        className="h-11 w-full rounded-full border border-border/70 bg-surface ps-12 pe-4 text-sm! text-foreground shadow-xs outline-none transition placeholder:text-muted hover:border-border focus:border-primary focus:bg-background focus:ring-4 focus:ring-primary-soft [&::-webkit-search-cancel-button]:appearance-none"
       />
       {showSuggestions ? (
         <SearchSuggestions

@@ -92,7 +92,7 @@ export default function CartDrawer() {
 
       <div
         aria-hidden={!open}
-        className={`fixed inset-y-0 inset-e-0 z-70 w-[min(26.5rem,100vw)] overflow-hidden ${open ? "" : "pointer-events-none"}`}
+        className={`fixed inset-y-0 inset-e-0 z-70 w-full lg:w-[min(26.5rem,100vw)] overflow-hidden ${open ? "" : "pointer-events-none"}`}
       >
         <div
           id={drawerId}
@@ -132,6 +132,7 @@ export default function CartDrawer() {
               <p className="mt-2 max-w-xs text-sm leading-6 text-muted">{cartText("emptyNote")}</p>
               <Link
                 href={getShopRoutePath()}
+                onClick={closeCart}
                 className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 {cartText("shop")}

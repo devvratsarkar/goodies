@@ -54,7 +54,7 @@ export default async function ContactUsPage({ params }: ContactUsPageProps) {
 
   return (
     <div>
-      <section className="relative isolate min-h-80 w-full overflow-hidden sm:min-h-96 lg:min-h-112">
+      <section className="relative isolate min-h-60 w-full overflow-hidden sm:min-h-96 lg:min-h-112">
         <div className="absolute inset-0">
           <ImageComponent
             src="/images/home/pastel-sweets.webp"
@@ -70,7 +70,7 @@ export default async function ContactUsPage({ params }: ContactUsPageProps) {
           className="absolute inset-0 bg-linear-to-t from-black/75 via-black/50 to-black/35"
         />
 
-        <div className="container relative z-10 flex min-h-80 flex-col justify-end py-8 sm:min-h-96 sm:py-10 lg:min-h-112 lg:py-14">
+        <div className="container relative z-10 flex min-h-60 flex-col justify-end py-8 sm:min-h-96 sm:py-10 lg:min-h-112 lg:py-14">
           <Breadcrumbs
             variant="hero"
             items={[

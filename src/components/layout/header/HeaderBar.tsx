@@ -154,7 +154,7 @@ export function HeaderBar({ logo, currency, shopCategories }: HeaderBarProps) {
       <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-xl">
         <div className="container">
           {/* Mobile bar */}
-          <div className="grid grid-cols-3 items-center py-2.5 lg:hidden">
+          <div className="grid grid-cols-3 items-center py-1 lg:hidden">
             <button
               type="button"
               onClick={() => setMenuOpen((value) => !value)}
@@ -174,7 +174,7 @@ export function HeaderBar({ logo, currency, shopCategories }: HeaderBarProps) {
               <BrandLogo logo={logo} />
             </div>
 
-            <div className="flex items-center justify-self-end">
+            <div className="flex items-center justify-self-end max-lg:me-2">
               <ActionLink
                 href={getWishlistRoutePath()}
                 label={t("wishlistLabel", { count: wishlistCount })}
@@ -269,8 +269,8 @@ export function HeaderBar({ logo, currency, shopCategories }: HeaderBarProps) {
       </header>
 
       {/* Mobile search sits outside the sticky header so it scrolls away naturally. */}
-      <div className="bg-background/85 lg:hidden ">
-        <div className="container pb-3">
+      <div className="bg-background/85 border-b border-b-border lg:hidden ">
+        <div className="container pb-2">
           <SearchField />
         </div>
       </div>
