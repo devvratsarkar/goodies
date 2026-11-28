@@ -33,7 +33,7 @@ export function TrackingScripts({
         <>
           <Script src={`https://www.googletagmanager.com/gtag/js?id=${analytics}`} strategy="lazyOnload" />
           <Script id="google-analytics" strategy="lazyOnload">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${analytics}');`}
+            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${analytics}',{"referral_exclusion_definition":[{"match_type":"begins_with","domain":"pay.ziina.co"},{"match_type":"begins_with","domain":"ziina.com"},{"match_type":"begins_with","domain":"tabby.ai"},{"match_type":"begins_with","domain":"checkout.tabby.ai"},{"match_type":"begins_with","domain":"tamara.co"},{"match_type":"begins_with","domain":"checkout.tamara.co"}]});`}
           </Script>
         </>
       ) : null}
