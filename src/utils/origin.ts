@@ -10,6 +10,14 @@ export function rememberOrigin() {
     session_length:  30,
     timezone_offset: "0",
     base64:          false,
+    ignoredRefs: [
+      "ziina.com",
+      "pay.ziina.co",
+      "tabby.ai",
+      "tamara.co",
+      "checkout.tabby.ai",
+      "checkout.tamara.co",
+    ],
   });
 }
 

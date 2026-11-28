@@ -35,6 +35,7 @@ declare module "sourcebuster" {
       session_length?: number;
       timezone_offset?: string;
       base64?: boolean;
+      ignoredRefs?: string[];
       callback?: (get: SbjsGet) => void;
     }): void;
     get: SbjsGet;
