@@ -32,7 +32,7 @@ export function rememberOrigin() {
   initialized = true;
   injectUtmFromClickId();
   sbjs.init({
-    lifetime:        6,
+    lifetime:        0.033,  // ~1 day (sbjs lifetime is in months)
     session_length:  30,
     timezone_offset: "0",
     base64:          false,
